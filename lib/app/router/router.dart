@@ -8,6 +8,7 @@ import 'package:medicity_app/features/entry/presentation/screens/welcome_screen.
 import 'package:medicity_app/features/home/presentation/screens/home_page.dart';
 import '../../features/auth/presentation/screens/set_password_page.dart';
 import '../../features/auth/presentation/screens/sign_up_page.dart';
+import '../../shared/widgets/custom_bottom_nav_bar.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -34,27 +35,19 @@ class AppRouter {
     // },
     navigatorKey: _rootNavigatorKey,
     routes: [
-      // ShellRoute(
-      //   builder: (context, state, child) => CustomBottomNavigationBar(state: state, child: child),
-      //   routes: [
-      //     GoRoute(
-      //       path: AppRoutePaths.homePage,
-      //       name: AppRouteNames.homePage,
-      //       builder: (context, state) {
-      //         return HomePage();
-      //       },
-      //     ),
-      //     GoRoute(
-      //       path: AppRoutePaths.wishlistPage,
-      //       name: AppRouteNames.wishlistPage,
-      //       builder: (context, state) => const WishlistPage(),
-      //     ),
-      //     GoRoute(
-      //       path: AppRoutePaths.cartPage,
-      //       name: AppRouteNames.cartPage,
-      //       builder: (context, state) => const CartPage(),
-      //     ),
-      //   ],),
+      ShellRoute(
+        builder: (context, state, child) =>
+            CustomBottomNavigationBar(state: state, child: child),
+        routes: [
+          GoRoute(
+            path: AppRoutePaths.homePage,
+            name: AppRouteNames.homePage,
+            builder: (context, state) {
+              return HomePage();
+            },
+          ),
+        ],
+      ),
       GoRoute(
         path: AppRoutePaths.splashScreen,
         name: AppRouteNames.splashScreen,
@@ -86,11 +79,11 @@ class AppRouter {
         name: AppRouteNames.setPassword,
         builder: (context, state) => const SetPasswordPage(),
       ),
-      GoRoute(
-        path: AppRoutePaths.homePage,
-        name: AppRouteNames.homePage,
-        builder: (context, state) => const HomePage(),
-      ),
+      // GoRoute(
+      //   path: AppRoutePaths.homePage,
+      //   name: AppRouteNames.homePage,
+      //   builder: (context, state) => const HomePage(),
+      // ),
     ],
   );
 }
