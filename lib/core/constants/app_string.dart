@@ -36,4 +36,9 @@ abstract final class AppString {
   static const String setPasswordTitle = 'Set Password';
   static const String createNewPassword = 'Create new password';
   static const String confirmPasswordTitle = 'Confirm Password';
+
+  //Home Page
+  static const String welcomeBackText = 'Hi, Welcome Back';
+  static const String doctorsText = 'Doctors';
+  static const String favouriteText = 'Favorite';
 }

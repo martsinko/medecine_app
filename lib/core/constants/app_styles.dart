@@ -19,6 +19,12 @@ abstract final class AppStyles {
     color: Colors.black,
     height: 0,
   );
+  static TextStyle leagueSpartan16 = GoogleFonts.leagueSpartan(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    height: 0,
+    color: Colors.black,
+  );
   static TextStyle leagueSpartan12W600 = GoogleFonts.leagueSpartan(
     fontSize: 12,
     fontWeight: FontWeight.w600,

@@ -5,6 +5,7 @@ import 'package:medicity_app/core/constants/app_routes.dart';
 import 'package:medicity_app/features/auth/presentation/screens/log_in_page.dart';
 import 'package:medicity_app/features/entry/presentation/screens/splash_screen.dart';
 import 'package:medicity_app/features/entry/presentation/screens/welcome_screen.dart';
+import 'package:medicity_app/features/home/presentation/screens/home_page.dart';
 import '../../features/auth/presentation/screens/set_password_page.dart';
 import '../../features/auth/presentation/screens/sign_up_page.dart';
 
@@ -84,6 +85,11 @@ class AppRouter {
         path: AppRoutePaths.setPassword,
         name: AppRouteNames.setPassword,
         builder: (context, state) => const SetPasswordPage(),
+      ),
+      GoRoute(
+        path: AppRoutePaths.homePage,
+        name: AppRouteNames.homePage,
+        builder: (context, state) => const HomePage(),
       ),
     ],
   );

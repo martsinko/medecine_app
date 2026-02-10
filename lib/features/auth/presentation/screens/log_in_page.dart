@@ -67,7 +67,10 @@ class LogInPage extends StatelessWidget {
               SizedBox(height: 42),
               Padding(
                 padding: EdgeInsetsGeometry.symmetric(horizontal: 65),
-                child: AppButton(title: AppString.logIn, onPressed: () {}),
+                child: AppButton(
+                  title: AppString.logIn,
+                  onPressed: () => context.pushNamed(AppRouteNames.homePage),
+                ),
               ),
               SizedBox(height: 16),
               Center(
