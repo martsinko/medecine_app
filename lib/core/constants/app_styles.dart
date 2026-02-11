@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:medicity_app/core/constants/app_index.dart';
 
 abstract final class AppStyles {
   static TextStyle leagueSpartan48 = GoogleFonts.leagueSpartan(
@@ -25,6 +26,12 @@ abstract final class AppStyles {
     height: 0,
     color: Colors.black,
   );
+  static TextStyle leagueSpartan14 = GoogleFonts.leagueSpartan(
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    height: 0,
+    color: AppColors.welcomeBlue,
+  );
   static TextStyle leagueSpartan12W600 = GoogleFonts.leagueSpartan(
     fontSize: 12,
     fontWeight: FontWeight.w600,
@@ -34,5 +41,6 @@ abstract final class AppStyles {
     fontSize: 12,
     fontWeight: FontWeight.w300,
     color: Colors.black,
+    height: 0,
   );
 }
