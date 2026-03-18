@@ -4,6 +4,8 @@ abstract final class AppImages {
   static final String backgroundWelcomeImage = _buildPath('welcome.png');
   static final String backgroundWelcomeImage2 = _buildPath('welcome2.png');
   static final String tryAvatarImage = _buildPath('try_avatar.png');
+  static final String exampleAvatar = _buildPath('example_avatar.png');
+
 }
 
 abstract final class AppIcons {
