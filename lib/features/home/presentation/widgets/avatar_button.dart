@@ -9,8 +9,8 @@ class AvatarButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       child: Container(
-        height: 38,
-        width: 38,
+        height: 36,
+        width: 36,
         padding: EdgeInsets.all(7),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
