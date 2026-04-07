@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
-import 'package:medicity_app/features/home/presentation/widgets/time_slot.dart';
+import 'package:medicity_app/features/home/presentation/widgets/home_page/time_slot.dart';
 
 class EventCard extends StatelessWidget {
   final Event event;

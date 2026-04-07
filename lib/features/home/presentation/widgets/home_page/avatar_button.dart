@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_index.dart';
+import '../../../../../core/constants/app_index.dart';
 
 class AvatarButton extends StatelessWidget {
   final String? imagePath;

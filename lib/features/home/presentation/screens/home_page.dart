@@ -1,14 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_index.dart';
-import '../../../../shared/widgets/small_button.dart';
 import '../../../../shared/widgets/teacher_card.dart';
 import '../providers/select_date_provider.dart';
-import '../widgets/events_mock.dart';
-import '../widgets/header_widget.dart';
-import '../widgets/info_container.dart';
-import '../widgets/timeline.dart';
-import '../widgets/week_calendar.dart';
+import '../widgets/home_page/events_mock.dart';
+import '../widgets/home_page/header_widget.dart';
+import '../widgets/home_page/timeline.dart';
+import '../widgets/home_page/week_calendar.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -39,7 +37,7 @@ class HomePage extends ConsumerWidget {
                       selectedDate: selectedDate,
                       onSelect: (date) {
                         ref.read(selectedDateProvider.notifier).state = date;
-                        print(date);
+                        // print(date);
                       },
                     ),
                     SizedBox(height: 16),
@@ -56,20 +54,22 @@ class HomePage extends ConsumerWidget {
                   ],
                 ),
               ),
-              SizedBox(height: 15,),
+              SizedBox(height: 15),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 30.0),
                 child: Column(
                   spacing: 10,
-                  children: List.generate(4, (e) =>
-                      TeacherCard(
-                    name: 'Dr. Olivia Turner, M.D.',
-                    description: 'Dermato-Endocrinology',
-                    rating: 5,
-                    comments: 60,
-                  ))
+                  children: List.generate(
+                    4,
+                    (e) => TeacherCard(
+                      name: 'Dr. Olivia Turner, M.D.',
+                      description: 'Dermato-Endocrinology',
+                      rating: 5,
+                      comments: 60,
+                    ),
+                  ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -77,4 +77,3 @@ class HomePage extends ConsumerWidget {
     );
   }
 }
-

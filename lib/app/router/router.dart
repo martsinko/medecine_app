@@ -8,6 +8,7 @@ import 'package:medicity_app/features/entry/presentation/screens/welcome_screen.
 import 'package:medicity_app/features/home/presentation/screens/home_page.dart';
 import '../../features/auth/presentation/screens/set_password_page.dart';
 import '../../features/auth/presentation/screens/sign_up_page.dart';
+import '../../features/home/presentation/screens/doctors_page.dart';
 import '../../shared/widgets/custom_bottom_nav_bar.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -78,6 +79,11 @@ class AppRouter {
         path: AppRoutePaths.setPassword,
         name: AppRouteNames.setPassword,
         builder: (context, state) => const SetPasswordPage(),
+      ),
+      GoRoute(
+        path: AppRoutePaths.doctorsPage,
+        name: AppRouteNames.doctorsPage,
+        builder: (context, state) => const DoctorsPage(),
       ),
       // GoRoute(
       //   path: AppRoutePaths.homePage,

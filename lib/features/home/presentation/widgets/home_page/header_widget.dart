@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_index.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../../core/constants/app_index.dart';
 import 'avatar_button.dart';
 import 'avatar_widget.dart';
 import 'header_button.dart';
@@ -30,6 +31,7 @@ class HeaderWidget extends StatelessWidget {
                         fontSize: 14,
                       ),
                     ),
+                    SizedBox(height: 6),
                     Text('John Doe', style: AppStyles.leagueSpartan16),
                   ],
                 ),
@@ -47,11 +49,13 @@ class HeaderWidget extends StatelessWidget {
               HeaderButton(
                 imagePath: AppIcons.doctorsIcon,
                 title: AppString.doctorsText,
+                onTap: () => context.pushNamed(AppRouteNames.doctorsPage),
               ),
               const SizedBox(width: 12),
               HeaderButton(
                 imagePath: AppIcons.favouriteIcon,
                 title: AppString.favouriteText,
+                onTap: () {},
               ),
               const SizedBox(width: 20),
               HeaderSearchField(),
