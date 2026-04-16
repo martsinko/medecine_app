@@ -13,8 +13,13 @@ class CustomBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isHome = state.fullPath == AppRoutePaths.homePage;
-    final isWishlist = state.fullPath == AppRoutePaths.wishlistPage;
+    final currentPath = state.uri.path;
+    final isHome = currentPath == AppRoutePaths.homePage;
+    final isWishlist = currentPath == AppRoutePaths.wishlistPage;
+    final isProfile = currentPath == AppRoutePaths.profilePage;
+    final isAppointments =
+        currentPath.startsWith(AppRoutePaths.appointmentsPage) ||
+        currentPath.startsWith('/schedule');
     return Scaffold(
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(
@@ -45,17 +50,17 @@ class CustomBottomNavigationBar extends StatelessWidget {
                 _NavigationItem(
                   selected: isWishlist,
                   icon: AppIcons.navBarIcon2,
-                  onTap: () => context.goNamed(AppRouteNames.homePage),
+                  onTap: () => context.goNamed(AppRouteNames.wishlistPage),
                 ),
                 _NavigationItem(
-                  selected: false,
+                  selected: isProfile,
                   icon: AppIcons.navBarIcon3,
-                  onTap: () => context.goNamed(AppRouteNames.homePage),
+                  onTap: () => context.goNamed(AppRouteNames.profilePage),
                 ),
                 _NavigationItem(
-                  selected: false,
+                  selected: isAppointments,
                   icon: AppIcons.navBarIcon4,
-                  onTap: () => context.goNamed(AppRouteNames.homePage),
+                  onTap: () => context.goNamed(AppRouteNames.appointmentsPage),
                 ),
               ],
             ),
@@ -91,7 +96,7 @@ class _NavigationItem extends StatelessWidget {
             SizedBox.square(
               dimension: 28,
               child: selected
-                  ? Image.asset(icon, color: Colors.black)
+                  ? Image.asset(icon, color: Colors.white)
                   : Image.asset(icon),
             ),
           ],

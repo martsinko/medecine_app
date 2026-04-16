@@ -1,0 +1,70 @@
+import '../models/appointment_models.dart';
+
+const List<AppointmentEntry> appointmentsMock = [
+  AppointmentEntry(
+    id: 'complete-olivia',
+    doctorId: 'olivia-turner',
+    status: AppointmentStatus.complete,
+    dateLabel: 'Sunday, 12 June',
+    timeLabel: '9:30 AM - 10:00 AM',
+    reviewStars: 5,
+  ),
+  AppointmentEntry(
+    id: 'complete-alexander',
+    doctorId: 'alexander-bennett',
+    status: AppointmentStatus.complete,
+    dateLabel: 'Friday, 20 June',
+    timeLabel: '2:30 PM - 3:00 PM',
+    reviewStars: 4,
+  ),
+  AppointmentEntry(
+    id: 'complete-sophia',
+    doctorId: 'sophia-martinez',
+    status: AppointmentStatus.complete,
+    dateLabel: 'Tuesday, 15 June',
+    timeLabel: '9:30 AM - 10:00 AM',
+    reviewStars: 5,
+  ),
+  AppointmentEntry(
+    id: 'upcoming-olivia',
+    doctorId: 'olivia-turner',
+    status: AppointmentStatus.upcoming,
+    dateLabel: 'Sunday, 12 June',
+    timeLabel: '9:30 AM - 10:00 AM',
+  ),
+  AppointmentEntry(
+    id: 'upcoming-alexander',
+    doctorId: 'alexander-bennett',
+    status: AppointmentStatus.upcoming,
+    dateLabel: 'Friday, 20 June',
+    timeLabel: '2:30 PM - 3:00 PM',
+  ),
+  AppointmentEntry(
+    id: 'upcoming-sophia',
+    doctorId: 'sophia-martinez',
+    status: AppointmentStatus.upcoming,
+    dateLabel: 'Tuesday, 15 June',
+    timeLabel: '9:30 AM - 10:00 AM',
+  ),
+  AppointmentEntry(
+    id: 'cancelled-olivia',
+    doctorId: 'olivia-turner',
+    status: AppointmentStatus.cancelled,
+    dateLabel: 'Sunday, 12 June',
+    timeLabel: '9:30 AM - 10:00 AM',
+  ),
+  AppointmentEntry(
+    id: 'cancelled-alexander',
+    doctorId: 'alexander-bennett',
+    status: AppointmentStatus.cancelled,
+    dateLabel: 'Friday, 20 June',
+    timeLabel: '2:30 PM - 3:00 PM',
+  ),
+  AppointmentEntry(
+    id: 'cancelled-sophia',
+    doctorId: 'sophia-martinez',
+    status: AppointmentStatus.cancelled,
+    dateLabel: 'Tuesday, 15 June',
+    timeLabel: '9:30 AM - 10:00 AM',
+  ),
+];
