@@ -5,10 +5,12 @@ import '../../core/constants/app_index.dart';
 class SmallButton extends StatelessWidget {
   final VoidCallback onTap;
   final IconData icon;
+  final bool selected;
   const SmallButton({
     super.key,
     required this.onTap,
-    required this.icon
+    required this.icon,
+    this.selected = false,
   });
 
   @override
@@ -26,7 +28,7 @@ class SmallButton extends StatelessWidget {
         ),
         child: Icon(
           icon, size: 12,
-          color: AppColors.welcomeBlue,
+          color: selected ? Colors.red : AppColors.welcomeBlue,
         ),
       ),
     );

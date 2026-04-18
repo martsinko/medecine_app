@@ -66,7 +66,7 @@ class HeaderWidget extends ConsumerWidget {
               HeaderButton(
                 imagePath: AppIcons.favouriteIcon,
                 title: AppString.favouriteText,
-                onTap: () {},
+                onTap: () => context.goNamed(AppRouteNames.wishlistPage),
               ),
               const SizedBox(width: 20),
               HeaderSearchField(),

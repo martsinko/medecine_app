@@ -1,11 +1,11 @@
 abstract final class AppString {
   // Splash Screen
-  static const String splashTitle = 'Skin \nFirts';
-  static const String splashSubtitle = 'Dermatology center';
+  static const String splashTitle = 'DDPU \nConsultation';
+  static const String splashSubtitle = 'DDPU';
 
   // Welcome Screen
-  static const String welcomeTitle = 'Skin \nFirts';
-  static const String welcomeSubtitle = 'Dermatology center';
+  static const String welcomeTitle = 'DDPU \nConsultation';
+  static const String welcomeSubtitle = 'DDPU';
   static const String welcomeLatinText =
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ';
   static const String logIn = 'Log In';
