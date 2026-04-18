@@ -71,6 +71,7 @@ class HomePage extends ConsumerWidget {
                               rating: teacher.rating,
                               comments: teacher.reviews,
                               imagePath: teacher.imagePath,
+                              teacherId: teacher.id,
                             ),
                         ],
                       ),

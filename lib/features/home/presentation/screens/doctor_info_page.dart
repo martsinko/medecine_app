@@ -170,8 +170,8 @@ class _DoctorInfoCard extends StatelessWidget {
                 label: _formatRating(doctor.rating),
               ),
               MetricBadge(
-                icon: Icons.chat_bubble_outline_rounded,
-                label: '${doctor.reviews}',
+                icon: Icons.rate_review_outlined,
+                label: '${doctor.reviews} reviews',
               ),
               MetricBadge(
                 icon: Icons.watch_later_outlined,

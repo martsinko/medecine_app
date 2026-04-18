@@ -63,6 +63,11 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
               timeOptions: timeOptions,
             );
 
+            final unavailableSlotsAsync = ref.watch(unavailableTimeSlotsProvider(
+              (doctorId: widget.doctorId, dateLabel: draft.selectedDay.fullLabel),
+            ));
+            final unavailableSlots = unavailableSlotsAsync.value ?? [];
+
             return Scaffold(
               backgroundColor: Colors.white,
               body: SafeArea(
@@ -205,31 +210,13 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
                         runSpacing: 8,
                         children: [
                           for (final time in timeOptions)
-                            InkWell(
-                              borderRadius: BorderRadius.circular(999),
-                              onTap: () => notifier.selectTime(time),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: time == draft.selectedTime
-                                      ? AppColors.welcomeBlue
-                                      : AppColors.fillColor,
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                                child: Text(
-                                  time,
-                                  style: AppStyles.leagueSpartan12W300.copyWith(
-                                    color: time == draft.selectedTime
-                                        ? Colors.white
-                                        : AppColors.hintColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
+                            _TimeSlotButton(
+                              time: time,
+                              isSelected: time == draft.selectedTime,
+                              isUnavailable: unavailableSlots.contains(time),
+                              onTap: unavailableSlots.contains(time)
+                                  ? null
+                                  : () => notifier.selectTime(time),
                             ),
                         ],
                       ),
@@ -339,10 +326,34 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
                       AppointmentActionButton(
                         label: 'Continue',
                         onTap: () async {
-                          notifier.updatePatientName(
-                            _nameController.text.trim(),
-                          );
-                          notifier.updatePatientAge(_ageController.text.trim());
+                          final name = _nameController.text.trim();
+                          final age = _ageController.text.trim();
+                          if (name.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please enter patient name'),
+                              ),
+                            );
+                            return;
+                          }
+                          if (age.isEmpty || int.tryParse(age) == null || int.parse(age) < 1 || int.parse(age) > 150) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please enter a valid age'),
+                              ),
+                            );
+                            return;
+                          }
+                          if (draft.selectedTime.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please select a time slot'),
+                              ),
+                            );
+                            return;
+                          }
+                          notifier.updatePatientName(name);
+                          notifier.updatePatientAge(age);
                           notifier.updateProblemDescription(
                             _problemController.text.trim(),
                           );
@@ -455,6 +466,57 @@ class _ScheduleField extends StatelessWidget {
       style: AppStyles.leagueSpartan16.copyWith(
         color: AppColors.welcomeBlue,
         fontWeight: FontWeight.w500,
+      ),
+    );
+  }
+}
+
+class _TimeSlotButton extends StatelessWidget {
+  final String time;
+  final bool isSelected;
+  final bool isUnavailable;
+  final VoidCallback? onTap;
+
+  const _TimeSlotButton({
+    required this.time,
+    required this.isSelected,
+    required this.isUnavailable,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDisabled = isUnavailable;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 8,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.welcomeBlue
+              : isDisabled
+                  ? AppColors.fillColor.withValues(alpha: 0.5)
+                  : AppColors.fillColor,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Text(
+          isUnavailable ? '$time (booked)' : time,
+          style: AppStyles.leagueSpartan12W300.copyWith(
+            color: isSelected
+                ? Colors.white
+                : isDisabled
+                    ? AppColors.hintColor.withValues(alpha: 0.5)
+                    : AppColors.hintColor,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            decoration: isUnavailable ? TextDecoration.lineThrough : null,
+          ),
+        ),
       ),
     );
   }

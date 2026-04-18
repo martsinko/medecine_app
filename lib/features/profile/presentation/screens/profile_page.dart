@@ -81,15 +81,7 @@ class ProfilePage extends ConsumerWidget {
         context.pushNamed(AppRouteNames.helpCenterPage);
       case 'Logout':
         _showLogoutSheet(context, ref);
-      case 'Payment Method':
-        _showComingSoon(context, 'Payment method screen');
     }
-  }
-
-  void _showComingSoon(BuildContext context, String title) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('$title is not implemented yet.')));
   }
 
   void _showLogoutSheet(BuildContext context, WidgetRef ref) {

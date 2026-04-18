@@ -20,18 +20,12 @@ const NotificationPreferences initialNotificationPreferences =
       soundCall: true,
       vibrate: false,
       specialOffers: false,
-      payments: true,
       promoAndDiscount: false,
-      cashback: true,
     );
 
 const List<ProfileMenuEntry> profileMenuEntries = [
   ProfileMenuEntry(title: 'Profile', icon: Icons.person_outline_rounded),
   ProfileMenuEntry(title: 'Favorite', icon: Icons.favorite_border_rounded),
-  ProfileMenuEntry(
-    title: 'Payment Method',
-    icon: Icons.account_balance_wallet_outlined,
-  ),
   ProfileMenuEntry(title: 'Privacy Policy', icon: Icons.privacy_tip_outlined),
   ProfileMenuEntry(title: 'Settings', icon: Icons.settings_outlined),
   ProfileMenuEntry(title: 'Help', icon: Icons.help_outline_rounded),
@@ -57,7 +51,7 @@ const List<FaqArticle> faqArticles = [
   FaqArticle(
     title: 'How do notifications work?',
     body:
-        'Notification preferences can be adjusted from Settings. You can independently enable reminders, payments, promo offers, and cashback messages.',
+        'Notification preferences can be adjusted from Settings. You can independently enable reminders, promo offers, and special offer messages.',
   ),
   FaqArticle(
     title: 'What if I need support quickly?',

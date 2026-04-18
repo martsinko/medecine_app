@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../../core/constants/app_index.dart';
+import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/features/profile/presentation/providers/profile_provider.dart';
 import 'avatar_button.dart';
 import 'avatar_widget.dart';
 import 'header_button.dart';
 import 'header_search_field.dart';
 
-class HeaderWidget extends StatelessWidget {
+class HeaderWidget extends ConsumerWidget {
   const HeaderWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profileAsync = ref.watch(profileProvider);
+    final userName = profileAsync.value?.fullName ?? 'Guest';
+    final userAvatar = profileAsync.value?.avatarPath;
+
     return Container(
       color: Colors.white,
       padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
@@ -18,7 +24,7 @@ class HeaderWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              AvatarWidget(),
+              AvatarWidget(imagePath: userAvatar),
               SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -32,13 +38,18 @@ class HeaderWidget extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 6),
-                    Text('John Doe', style: AppStyles.leagueSpartan16),
+                    Text(userName, style: AppStyles.leagueSpartan16),
                   ],
                 ),
               ),
-              AvatarButton(imagePath: AppIcons.notificationIcon),
+              AvatarButton(
+                imagePath: AppIcons.notificationIcon,
+                onTap: () => context.pushNamed(AppRouteNames.notificationSettingsPage),
+              ),
               SizedBox(width: 8),
-              AvatarButton(),
+              AvatarButton(
+                onTap: () => context.pushNamed(AppRouteNames.settingsPage),
+              ),
             ],
           ),
           SizedBox(height: 24),

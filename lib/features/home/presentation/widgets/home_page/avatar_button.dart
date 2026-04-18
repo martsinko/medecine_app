@@ -3,11 +3,14 @@ import '../../../../../core/constants/app_index.dart';
 
 class AvatarButton extends StatelessWidget {
   final String? imagePath;
-  const AvatarButton({super.key, this.imagePath});
+  final VoidCallback? onTap;
+
+  const AvatarButton({super.key, this.imagePath, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onTap: onTap,
       child: Container(
         height: 36,
         width: 36,

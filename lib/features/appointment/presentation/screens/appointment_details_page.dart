@@ -69,9 +69,8 @@ class AppointmentDetailsPage extends ConsumerWidget {
                                         ),
                                         const SizedBox(width: 8),
                                         InfoPill(
-                                          icon:
-                                              Icons.chat_bubble_outline_rounded,
-                                          label: '${teacher.reviews}',
+                                          icon: Icons.rate_review_outlined,
+                                          label: '${teacher.reviews} reviews',
                                         ),
                                         const Spacer(),
                                         CircleIconAction(

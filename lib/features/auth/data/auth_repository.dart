@@ -50,32 +50,54 @@ class AuthRepository {
   }
 
   Future<UserCredential> signInWithGoogle() async {
-    final googleUser = await googleSignIn.signIn();
-    if (googleUser == null) {
-      throw FirebaseAuthException(
-        code: 'google_sign_in_cancelled',
-        message: 'Google sign-in was cancelled.',
+    try {
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        throw FirebaseAuthException(
+          code: 'google_sign_in_cancelled',
+          message: 'Google sign-in was cancelled.',
+        );
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
       );
+      final userCredential = await auth.signInWithCredential(credential);
+      final user = userCredential.user!;
+
+      await _createOrMergeUserProfile(
+        uid: user.uid,
+        email: user.email ?? googleUser.email,
+        fullName: user.displayName ?? googleUser.displayName ?? '',
+        phoneNumber: user.phoneNumber ?? '',
+        dateOfBirth: '',
+        photoUrl: user.photoURL ?? '',
+      );
+
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'network_request_failed') {
+        throw FirebaseAuthException(
+          code: 'network_error',
+          message: 'Network error. Please check your internet connection.',
+        );
+      }
+      if (e.code == 'user-disabled') {
+        throw FirebaseAuthException(
+          code: 'user_disabled',
+          message: 'This account has been disabled.',
+        );
+      }
+      if (e.code == 'user-token-expired') {
+        throw FirebaseAuthException(
+          code: 'token_expired',
+          message: 'Session expired. Please sign in again.',
+        );
+      }
+      rethrow;
     }
-
-    final googleAuth = await googleUser.authentication;
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-    final userCredential = await auth.signInWithCredential(credential);
-    final user = userCredential.user!;
-
-    await _createOrMergeUserProfile(
-      uid: user.uid,
-      email: user.email ?? googleUser.email,
-      fullName: user.displayName ?? googleUser.displayName ?? '',
-      phoneNumber: user.phoneNumber ?? '',
-      dateOfBirth: '',
-      photoUrl: user.photoURL ?? '',
-    );
-
-    return userCredential;
   }
 
   Future<void> signOut() async {

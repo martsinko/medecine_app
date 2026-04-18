@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_routes.dart';
+import 'package:medicity_app/core/firebase/firebase_providers.dart';
 import 'package:medicity_app/features/appointment/presentation/screens/appointment_details_page.dart';
 import 'package:medicity_app/features/appointment/presentation/screens/appointments_page.dart';
 import 'package:medicity_app/features/appointment/presentation/screens/cancel_appointment_page.dart';
@@ -32,23 +34,27 @@ class AppRouter {
   static final GoRouter router = GoRouter(
     debugLogDiagnostics: kDebugMode,
     initialLocation: AppRoutePaths.splashScreen,
-    // redirect: (context, state) async {
-    //   final auth = context.read<LoginCubit>();
-    //   final loggedIn = await auth.isLoggedIn();
+    redirect: (context, state) {
+      final container = ProviderScope.containerOf(context);
+      final authUser = container.read(authStateChangesProvider).value;
+      final isLoggedIn = authUser != null;
 
-    //   final loggingIn = state.matchedLocation == AppRoutePaths.loginPage ||
-    //       state.matchedLocation == AppRoutePaths.welcomePage;
+      final loggingIn =
+          state.matchedLocation == AppRoutePaths.loginPage ||
+          state.matchedLocation == AppRoutePaths.welcomePage ||
+          state.matchedLocation == AppRoutePaths.signUpPage ||
+          state.matchedLocation == AppRoutePaths.splashScreen;
 
-    //   if (!loggedIn && !loggingIn) {
-    //     return AppRoutePaths.loginPage;
-    //   }
+      if (!isLoggedIn && !loggingIn) {
+        return null;
+      }
 
-    //   if (loggedIn && loggingIn) {
-    //     return AppRoutePaths.homePage;
-    //   }
+      if (isLoggedIn && loggingIn) {
+        return AppRoutePaths.homePage;
+      }
 
-    //   return null;
-    // },
+      return null;
+    },
     navigatorKey: _rootNavigatorKey,
     routes: [
       ShellRoute(
@@ -73,7 +79,13 @@ class AppRouter {
             path: AppRoutePaths.doctorInfoPage,
             name: AppRouteNames.doctorInfoPage,
             builder: (context, state) {
-              final teacherId = state.pathParameters['doctorId'] ?? '';
+              final teacherId = state.pathParameters['doctorId'];
+              if (teacherId == null || teacherId.isEmpty) {
+                return Scaffold(
+                  appBar: AppBar(title: const Text('Error')),
+                  body: const Center(child: Text('Invalid doctor selection')),
+                );
+              }
               return DoctorInfoPage(teacherId: teacherId);
             },
           ),
@@ -112,7 +124,13 @@ class AppRouter {
             path: AppRoutePaths.scheduleDoctorPage,
             name: AppRouteNames.scheduleDoctorPage,
             builder: (context, state) {
-              final doctorId = state.pathParameters['doctorId'] ?? '';
+              final doctorId = state.pathParameters['doctorId'];
+              if (doctorId == null || doctorId.isEmpty) {
+                return Scaffold(
+                  appBar: AppBar(title: const Text('Error')),
+                  body: const Center(child: Text('Invalid doctor selection')),
+                );
+              }
               return ScheduleDoctorPage(doctorId: doctorId);
             },
           ),
@@ -120,7 +138,13 @@ class AppRouter {
             path: AppRoutePaths.scheduleFormPage,
             name: AppRouteNames.scheduleFormPage,
             builder: (context, state) {
-              final doctorId = state.pathParameters['doctorId'] ?? '';
+              final doctorId = state.pathParameters['doctorId'];
+              if (doctorId == null || doctorId.isEmpty) {
+                return Scaffold(
+                  appBar: AppBar(title: const Text('Error')),
+                  body: const Center(child: Text('Invalid doctor selection')),
+                );
+              }
               return ScheduleFormPage(doctorId: doctorId);
             },
           ),
@@ -128,7 +152,13 @@ class AppRouter {
             path: AppRoutePaths.appointmentDetailsPage,
             name: AppRouteNames.appointmentDetailsPage,
             builder: (context, state) {
-              final appointmentId = state.pathParameters['appointmentId'] ?? '';
+              final appointmentId = state.pathParameters['appointmentId'];
+              if (appointmentId == null || appointmentId.isEmpty) {
+                return Scaffold(
+                  appBar: AppBar(title: const Text('Error')),
+                  body: const Center(child: Text('Invalid appointment')),
+                );
+              }
               return AppointmentDetailsPage(appointmentId: appointmentId);
             },
           ),
@@ -136,7 +166,13 @@ class AppRouter {
             path: AppRoutePaths.cancelAppointmentPage,
             name: AppRouteNames.cancelAppointmentPage,
             builder: (context, state) {
-              final appointmentId = state.pathParameters['appointmentId'] ?? '';
+              final appointmentId = state.pathParameters['appointmentId'];
+              if (appointmentId == null || appointmentId.isEmpty) {
+                return Scaffold(
+                  appBar: AppBar(title: const Text('Error')),
+                  body: const Center(child: Text('Invalid appointment')),
+                );
+              }
               return CancelAppointmentPage(appointmentId: appointmentId);
             },
           ),
@@ -144,7 +180,13 @@ class AppRouter {
             path: AppRoutePaths.reviewAppointmentPage,
             name: AppRouteNames.reviewAppointmentPage,
             builder: (context, state) {
-              final appointmentId = state.pathParameters['appointmentId'] ?? '';
+              final appointmentId = state.pathParameters['appointmentId'];
+              if (appointmentId == null || appointmentId.isEmpty) {
+                return Scaffold(
+                  appBar: AppBar(title: const Text('Error')),
+                  body: const Center(child: Text('Invalid appointment')),
+                );
+              }
               return ReviewAppointmentPage(appointmentId: appointmentId);
             },
           ),

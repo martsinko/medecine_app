@@ -24,6 +24,18 @@ final appointmentActionProvider =
       return AppointmentActionNotifier(ref);
     });
 
+final unavailableTimeSlotsProvider =
+    FutureProvider.family<List<String>, ({String doctorId, String dateLabel})>((ref, params) async {
+      final userId = ref.read(currentUserIdProvider);
+      if (userId == null) {
+        return [];
+      }
+      return ref.read(appointmentRepositoryProvider).getUnavailableTimeSlots(
+        doctorId: params.doctorId,
+        dateLabel: params.dateLabel,
+      );
+    });
+
 final scheduleDraftProvider =
     StateNotifierProvider.family<ScheduleDraftNotifier, ScheduleDraft, String>((
       ref,
@@ -83,6 +95,29 @@ class AppointmentActionNotifier extends StateNotifier<AsyncValue<void>> {
   Future<String> createScheduledAppointment(ScheduleDraft draft) async {
     final userId = _ref.read(currentUserIdProvider);
     final appointmentId = 'scheduled-${DateTime.now().microsecondsSinceEpoch}';
+
+    if (userId == null) {
+      state = AsyncError(
+        StateError('User is not logged in.'),
+        StackTrace.current,
+      );
+      return appointmentId;
+    }
+
+    final hasConflict = await _ref.read(appointmentRepositoryProvider).hasConflictBooking(
+      userId: userId,
+      doctorId: draft.doctorId,
+      dateLabel: draft.selectedDay.fullLabel,
+      timeLabel: draft.selectedTime,
+    );
+    if (hasConflict) {
+      state = AsyncError(
+        StateError('This time slot is already booked. Please select another time.'),
+        StackTrace.current,
+      );
+      return appointmentId;
+    }
+
     final appointment = AppointmentEntry(
       id: appointmentId,
       doctorId: draft.doctorId,
@@ -97,13 +132,6 @@ class AppointmentActionNotifier extends StateNotifier<AsyncValue<void>> {
           ? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ea commodo consequat.'
           : draft.problemDescription,
     );
-    if (userId == null) {
-      state = AsyncError(
-        StateError('User is not logged in.'),
-        StackTrace.current,
-      );
-      return appointmentId;
-    }
 
     state = const AsyncLoading();
     state = await AsyncValue.guard(

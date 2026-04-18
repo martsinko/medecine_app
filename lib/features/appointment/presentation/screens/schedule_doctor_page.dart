@@ -161,8 +161,8 @@ class ScheduleDoctorPage extends ConsumerWidget {
                                   label: teacher.rating.toStringAsFixed(1),
                                 ),
                                 InfoPill(
-                                  icon: Icons.chat_bubble_outline_rounded,
-                                  label: '${teacher.reviews}',
+                                  icon: Icons.rate_review_outlined,
+                                  label: '${teacher.reviews} reviews',
                                 ),
                                 InfoPill(
                                   icon: Icons.watch_later_outlined,

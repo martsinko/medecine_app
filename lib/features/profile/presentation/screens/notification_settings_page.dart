@@ -74,32 +74,12 @@ class NotificationSettingsPage extends ConsumerWidget {
                 ),
               ),
               NotificationSwitchTile(
-                title: 'Payments',
-                value: preferences.payments,
-                onChanged: (value) => _update(
-                  ref,
-                  preferences,
-                  NotificationPreferenceType.payments,
-                  value,
-                ),
-              ),
-              NotificationSwitchTile(
                 title: 'Promo And Discount',
                 value: preferences.promoAndDiscount,
                 onChanged: (value) => _update(
                   ref,
                   preferences,
                   NotificationPreferenceType.promoAndDiscount,
-                  value,
-                ),
-              ),
-              NotificationSwitchTile(
-                title: 'Cashback',
-                value: preferences.cashback,
-                onChanged: (value) => _update(
-                  ref,
-                  preferences,
-                  NotificationPreferenceType.cashback,
                   value,
                 ),
               ),
@@ -126,12 +106,8 @@ class NotificationSettingsPage extends ConsumerWidget {
         preferences.copyWith(vibrate: value),
       NotificationPreferenceType.specialOffers =>
         preferences.copyWith(specialOffers: value),
-      NotificationPreferenceType.payments =>
-        preferences.copyWith(payments: value),
       NotificationPreferenceType.promoAndDiscount =>
         preferences.copyWith(promoAndDiscount: value),
-      NotificationPreferenceType.cashback =>
-        preferences.copyWith(cashback: value),
     };
 
     ref.read(profileActionProvider.notifier).updateNotificationPreferences(updated);

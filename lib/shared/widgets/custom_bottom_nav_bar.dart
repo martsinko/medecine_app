@@ -96,7 +96,7 @@ class _NavigationItem extends StatelessWidget {
             SizedBox.square(
               dimension: 28,
               child: selected
-                  ? Image.asset(icon, color: Colors.white)
+                  ? Image.asset(icon, color: Colors.black)
                   : Image.asset(icon),
             ),
           ],

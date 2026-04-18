@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:go_router/go_router.dart';
 import '../../core/constants/app_index.dart';
 import '../../features/home/presentation/widgets/home_page/info_container.dart';
 import 'adaptive_avatar.dart';
@@ -11,6 +11,7 @@ class TeacherCard extends StatelessWidget {
   final double rating;
   final int comments;
   final String? imagePath;
+  final String? teacherId;
   const TeacherCard({
     super.key,
     required this.description,
@@ -18,6 +19,7 @@ class TeacherCard extends StatelessWidget {
     required this.comments,
     required this.rating,
     this.imagePath,
+    this.teacherId,
   });
 
   @override
@@ -26,7 +28,7 @@ class TeacherCard extends StatelessWidget {
         ? rating.toInt().toString()
         : rating.toString();
     return Container(
-      padding: EdgeInsetsGeometry.only(left: 13, right: 9, top: 9, bottom: 6),
+      padding: const EdgeInsets.only(left: 13, right: 9, top: 9, bottom: 6),
       decoration: BoxDecoration(
         color: AppColors.signUpButtonBlue,
         borderRadius: BorderRadius.circular(17),
@@ -74,9 +76,26 @@ class TeacherCard extends StatelessWidget {
                         icon: Icons.comment_outlined,
                       ),
                       Spacer(),
-                      SmallButton(onTap: () {}, icon: Icons.question_mark),
-                      SizedBox(width: 1),
-                      SmallButton(onTap: () {}, icon: Icons.favorite),
+                      SmallButton(
+                        onTap: () {
+                          if (teacherId != null) {
+                            context.goNamed(
+                              AppRouteNames.doctorInfoPage,
+                              pathParameters: {'doctorId': teacherId!},
+                            );
+                          }
+                        },
+                        icon: Icons.question_mark,
+                      ),
+                      const SizedBox(width: 1),
+                      SmallButton(
+                        onTap: () {
+                          if (teacherId != null) {
+                            context.goNamed(AppRouteNames.wishlistPage);
+                          }
+                        },
+                        icon: Icons.favorite,
+                      ),
                     ],
                   ),
                 ],
