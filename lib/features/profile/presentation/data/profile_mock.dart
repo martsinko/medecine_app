@@ -4,11 +4,13 @@ import 'package:medicity_app/core/constants/app_images.dart';
 import '../models/profile_models.dart';
 
 final ProfileData initialProfileData = ProfileData(
+  uid: '',
   fullName: 'John Doe',
   phoneNumber: '+123 567 89000',
   email: 'johndoe@example.com',
   dateOfBirth: 'DD / MM / YYYY',
   avatarPath: AppImages.tryAvatarImage,
+  notificationPreferences: initialNotificationPreferences,
 );
 
 const NotificationPreferences initialNotificationPreferences =
@@ -45,12 +47,12 @@ const List<FaqArticle> faqArticles = [
   FaqArticle(
     title: 'How do I make an appointment?',
     body:
-        'Open a doctor card, review the available schedule, and confirm a suitable time slot. You can return later to reschedule from your profile.',
+        'Open a teacher card, review the available schedule, and confirm a suitable time slot. You can return later to reschedule from your profile.',
   ),
   FaqArticle(
-    title: 'Can I save favorite doctors?',
+    title: 'Can I save favorite teachers?',
     body:
-        'Yes. Tap the favorite icon on a doctor card or in doctor details. Saved doctors appear in the Favorite section together with saved services.',
+        'Yes. Tap the favorite icon on a teacher card or in teacher details. Saved teachers appear in the Favorite section together with saved services.',
   ),
   FaqArticle(
     title: 'How do notifications work?',

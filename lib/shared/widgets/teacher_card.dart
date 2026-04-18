@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/app_index.dart';
 import '../../features/home/presentation/widgets/home_page/info_container.dart';
+import 'adaptive_avatar.dart';
 import 'small_button.dart';
 
 class TeacherCard extends StatelessWidget {
@@ -36,10 +37,9 @@ class TeacherCard extends StatelessWidget {
           children: [
             AspectRatio(
               aspectRatio: 1,
-              child: CircleAvatar(
-                backgroundImage: AssetImage(
-                  imagePath ?? AppImages.exampleAvatar,
-                ),
+              child: AdaptiveAvatar(
+                imageSource: imagePath ?? AppImages.exampleAvatar,
+                radius: 40,
               ),
             ),
             SizedBox(width: 10),

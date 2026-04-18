@@ -1,12 +1,27 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:medicity_app/core/firebase/firebase_providers.dart';
+import 'package:medicity_app/features/appointment/data/appointment_repository.dart';
+import 'package:medicity_app/features/profile/presentation/providers/profile_provider.dart';
 
-import '../data/appointments_mock.dart';
 import '../data/schedule_mock.dart';
 import '../models/appointment_models.dart';
 
-final appointmentsProvider =
-    StateNotifierProvider<AppointmentsNotifier, List<AppointmentEntry>>((ref) {
-      return AppointmentsNotifier();
+final appointmentRepositoryProvider = Provider<AppointmentRepository>((ref) {
+  return AppointmentRepository(firestore: ref.watch(firestoreProvider));
+});
+
+final appointmentsProvider = StreamProvider<List<AppointmentEntry>>((ref) {
+  final userId = ref.watch(currentUserIdProvider);
+  if (userId == null) {
+    return Stream.value(const <AppointmentEntry>[]);
+  }
+
+  return ref.watch(appointmentRepositoryProvider).watchAppointments(userId);
+});
+
+final appointmentActionProvider =
+    StateNotifierProvider<AppointmentActionNotifier, AsyncValue<void>>((ref) {
+      return AppointmentActionNotifier(ref);
     });
 
 final scheduleDraftProvider =
@@ -30,56 +45,43 @@ final scheduleDraftProvider =
       );
     });
 
-class AppointmentsNotifier extends StateNotifier<List<AppointmentEntry>> {
-  AppointmentsNotifier() : super(appointmentsMock);
+class AppointmentActionNotifier extends StateNotifier<AsyncValue<void>> {
+  final Ref _ref;
 
-  void markAsComplete(String appointmentId) {
-    state = [
-      for (final appointment in state)
-        if (appointment.id == appointmentId)
-          appointment.copyWith(status: AppointmentStatus.complete)
-        else
-          appointment,
-    ];
+  AppointmentActionNotifier(this._ref) : super(const AsyncData(null));
+
+  Future<void> markAsComplete(String appointmentId) {
+    return _updateAppointment(appointmentId, {
+      'status': AppointmentStatus.complete.name,
+    });
   }
 
-  void cancelAppointment(
+  Future<void> cancelAppointment(
     String appointmentId, {
     required CancelReason reason,
     required String comment,
   }) {
-    state = [
-      for (final appointment in state)
-        if (appointment.id == appointmentId)
-          appointment.copyWith(
-            status: AppointmentStatus.cancelled,
-            cancelReason: reason,
-            cancelComment: comment,
-          )
-        else
-          appointment,
-    ];
+    return _updateAppointment(appointmentId, {
+      'status': AppointmentStatus.cancelled.name,
+      'cancelReason': reason.name,
+      'cancelComment': comment,
+    });
   }
 
-  void addReview(
+  Future<void> addReview(
     String appointmentId, {
     required int stars,
     required String comment,
   }) {
-    state = [
-      for (final appointment in state)
-        if (appointment.id == appointmentId)
-          appointment.copyWith(
-            reviewed: true,
-            reviewStars: stars,
-            reviewComment: comment,
-          )
-        else
-          appointment,
-    ];
+    return _updateAppointment(appointmentId, {
+      'reviewed': true,
+      'reviewStars': stars,
+      'reviewComment': comment,
+    });
   }
 
-  String createScheduledAppointment(ScheduleDraft draft) {
+  Future<String> createScheduledAppointment(ScheduleDraft draft) async {
+    final userId = _ref.read(currentUserIdProvider);
     final appointmentId = 'scheduled-${DateTime.now().microsecondsSinceEpoch}';
     final appointment = AppointmentEntry(
       id: appointmentId,
@@ -95,9 +97,33 @@ class AppointmentsNotifier extends StateNotifier<List<AppointmentEntry>> {
           ? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ea commodo consequat.'
           : draft.problemDescription,
     );
+    if (userId == null) {
+      state = AsyncError(
+        StateError('User is not logged in.'),
+        StackTrace.current,
+      );
+      return appointmentId;
+    }
 
-    state = [appointment, ...state];
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => _ref
+          .read(appointmentRepositoryProvider)
+          .setAppointment(appointment, userId),
+    );
     return appointmentId;
+  }
+
+  Future<void> _updateAppointment(
+    String appointmentId,
+    Map<String, dynamic> data,
+  ) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => _ref
+          .read(appointmentRepositoryProvider)
+          .updateAppointment(appointmentId, data),
+    );
   }
 }
 

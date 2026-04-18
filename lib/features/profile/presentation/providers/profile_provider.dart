@@ -1,50 +1,82 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:medicity_app/core/firebase/firebase_providers.dart';
+import 'package:medicity_app/features/profile/data/profile_repository.dart';
 
-import '../data/profile_mock.dart';
 import '../models/profile_models.dart';
 
-final profileProvider = StateNotifierProvider<ProfileNotifier, ProfileData>((
-  ref,
-) {
-  return ProfileNotifier();
+final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
+  return ProfileRepository(firestore: ref.watch(firestoreProvider));
 });
 
-final notificationPreferencesProvider =
-    StateNotifierProvider<
-      NotificationPreferencesNotifier,
-      NotificationPreferences
-    >((ref) {
-      return NotificationPreferencesNotifier();
+final currentUserIdProvider = Provider<String?>((ref) {
+  return ref.watch(authStateChangesProvider).value?.uid;
+});
+
+final profileProvider = StreamProvider<ProfileData?>((ref) {
+  final userId = ref.watch(currentUserIdProvider);
+  if (userId == null) {
+    return Stream.value(null);
+  }
+
+  return ref.watch(profileRepositoryProvider).watchUser(userId);
+});
+
+final profileActionProvider =
+    StateNotifierProvider<ProfileActionNotifier, AsyncValue<void>>((ref) {
+      return ProfileActionNotifier(ref);
     });
 
-class ProfileNotifier extends StateNotifier<ProfileData> {
-  ProfileNotifier() : super(initialProfileData);
+class ProfileActionNotifier extends StateNotifier<AsyncValue<void>> {
+  final Ref _ref;
 
-  void update(ProfileData data) {
-    state = data;
+  ProfileActionNotifier(this._ref) : super(const AsyncData(null));
+
+  Future<void> update(ProfileData data) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => _ref.watch(profileRepositoryProvider).updateProfile(data),
+    );
   }
-}
 
-class NotificationPreferencesNotifier
-    extends StateNotifier<NotificationPreferences> {
-  NotificationPreferencesNotifier() : super(initialNotificationPreferences);
+  Future<void> updateNotificationPreferences(
+    NotificationPreferences preferences,
+  ) async {
+    final uid = _ref.read(currentUserIdProvider);
+    if (uid == null) {
+      state = AsyncError(
+        StateError('User is not logged in.'),
+        StackTrace.current,
+      );
+      return;
+    }
 
-  void update(NotificationPreferenceType type, bool value) {
-    state = switch (type) {
-      NotificationPreferenceType.generalNotification => state.copyWith(
-        generalNotification: value,
-      ),
-      NotificationPreferenceType.sound => state.copyWith(sound: value),
-      NotificationPreferenceType.soundCall => state.copyWith(soundCall: value),
-      NotificationPreferenceType.vibrate => state.copyWith(vibrate: value),
-      NotificationPreferenceType.specialOffers => state.copyWith(
-        specialOffers: value,
-      ),
-      NotificationPreferenceType.payments => state.copyWith(payments: value),
-      NotificationPreferenceType.promoAndDiscount => state.copyWith(
-        promoAndDiscount: value,
-      ),
-      NotificationPreferenceType.cashback => state.copyWith(cashback: value),
-    };
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => _ref
+          .watch(profileRepositoryProvider)
+          .updateNotificationPreferences(uid, preferences),
+    );
+  }
+
+  Future<void> toggleFavoriteTeacher(String teacherId, bool isFavorite) async {
+    final uid = _ref.read(currentUserIdProvider);
+    if (uid == null) {
+      state = AsyncError(
+        StateError('User is not logged in.'),
+        StackTrace.current,
+      );
+      return;
+    }
+
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => _ref
+          .watch(profileRepositoryProvider)
+          .toggleFavoriteTeacher(
+            uid: uid,
+            teacherId: teacherId,
+            isFavorite: isFavorite,
+          ),
+    );
   }
 }

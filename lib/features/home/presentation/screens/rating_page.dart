@@ -1,56 +1,76 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/shared/widgets/adaptive_avatar.dart';
 
-import '../data/doctors_mock.dart';
 import '../models/doctor_profile.dart';
+import '../providers/teacher_provider.dart';
+import '../../../profile/presentation/providers/profile_provider.dart';
 import '../widgets/doctors/doctor_components.dart';
 
-class RatingPage extends StatelessWidget {
+class RatingPage extends ConsumerWidget {
   const RatingPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 16, 18, 0),
-          child: ListView.separated(
-            padding: const EdgeInsets.only(bottom: 120),
-            itemCount: doctorsMock.length + 2,
-            separatorBuilder: (_, index) => const SizedBox(height: 16),
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                return const DoctorsTopBar(title: 'Rating');
-              }
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref
+        .watch(teachersProvider)
+        .when(
+          data: (teachers) {
+            final sortedTeachers = [...teachers]
+              ..sort((a, b) => b.rating.compareTo(a.rating));
 
-              if (index == 1) {
-                return DoctorsFilterRow(
-                  highlight: DoctorsFilterHighlight.rating,
-                  onRatingTap: () {},
-                  onFavoriteTap: () =>
-                      context.goNamed(AppRouteNames.wishlistPage),
-                );
-              }
+            return Scaffold(
+              backgroundColor: Colors.white,
+              body: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 0),
+                  child: ListView.separated(
+                    padding: const EdgeInsets.only(bottom: 120),
+                    itemCount: sortedTeachers.length + 2,
+                    separatorBuilder: (_, index) => const SizedBox(height: 16),
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        return const DoctorsTopBar(title: 'Rating');
+                      }
 
-              final doctor = doctorsMock[index - 2];
-              return _RatedDoctorCard(doctor: doctor);
-            },
+                      if (index == 1) {
+                        return DoctorsFilterRow(
+                          highlight: DoctorsFilterHighlight.rating,
+                          onRatingTap: () {},
+                          onFavoriteTap: () =>
+                              context.goNamed(AppRouteNames.wishlistPage),
+                        );
+                      }
+
+                      final teacher = sortedTeachers[index - 2];
+                      return _RatedDoctorCard(doctor: teacher);
+                    },
+                  ),
+                ),
+              ),
+            );
+          },
+          loading: () => const Scaffold(
+            body: SafeArea(child: Center(child: CircularProgressIndicator())),
           ),
-        ),
-      ),
-    );
+          error: (error, stackTrace) => const Scaffold(
+            body: SafeArea(
+              child: Center(child: Text('Failed to load ratings.')),
+            ),
+          ),
+        );
   }
 }
 
-class _RatedDoctorCard extends StatelessWidget {
+class _RatedDoctorCard extends ConsumerWidget {
   final DoctorProfile doctor;
 
   const _RatedDoctorCard({required this.doctor});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -63,7 +83,7 @@ class _RatedDoctorCard extends StatelessWidget {
             children: [
               MetricBadge(
                 icon: Icons.workspace_premium_outlined,
-                label: 'Professional Doctor',
+                label: 'Professional Teacher',
                 foregroundColor: AppColors.welcomeBlue,
               ),
               const Spacer(),
@@ -79,7 +99,11 @@ class _RatedDoctorCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 34,
-                backgroundImage: AssetImage(doctor.imagePath),
+                backgroundColor: Colors.transparent,
+                child: AdaptiveAvatar(
+                  imageSource: doctor.imagePath,
+                  radius: 34,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -141,7 +165,9 @@ class _RatedDoctorCard extends StatelessWidget {
               RoundActionButton(
                 icon: Icons.favorite_rounded,
                 selected: doctor.isFavorite,
-                onTap: () => context.goNamed(AppRouteNames.wishlistPage),
+                onTap: () => ref
+                    .read(profileActionProvider.notifier)
+                    .toggleFavoriteTeacher(doctor.id, !doctor.isFavorite),
               ),
             ],
           ),

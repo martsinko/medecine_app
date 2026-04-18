@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/shared/widgets/adaptive_avatar.dart';
 
 class ProfileTopBar extends StatelessWidget {
   final String title;
@@ -86,7 +87,7 @@ class ProfileAvatar extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        CircleAvatar(radius: radius, backgroundImage: AssetImage(imagePath)),
+        AdaptiveAvatar(imageSource: imagePath, radius: radius),
         Positioned(
           right: -4,
           bottom: 10,

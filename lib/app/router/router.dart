@@ -11,7 +11,6 @@ import 'package:medicity_app/features/appointment/presentation/screens/schedule_
 import 'package:medicity_app/features/auth/presentation/screens/log_in_page.dart';
 import 'package:medicity_app/features/entry/presentation/screens/splash_screen.dart';
 import 'package:medicity_app/features/entry/presentation/screens/welcome_screen.dart';
-import 'package:medicity_app/features/home/presentation/data/doctors_mock.dart';
 import 'package:medicity_app/features/home/presentation/screens/doctor_info_page.dart';
 import 'package:medicity_app/features/home/presentation/screens/home_page.dart';
 import 'package:medicity_app/features/home/presentation/screens/rating_page.dart';
@@ -74,8 +73,8 @@ class AppRouter {
             path: AppRoutePaths.doctorInfoPage,
             name: AppRouteNames.doctorInfoPage,
             builder: (context, state) {
-              final doctorId = state.pathParameters['doctorId'] ?? '';
-              return DoctorInfoPage(doctor: getDoctorById(doctorId));
+              final teacherId = state.pathParameters['doctorId'] ?? '';
+              return DoctorInfoPage(teacherId: teacherId);
             },
           ),
           GoRoute(

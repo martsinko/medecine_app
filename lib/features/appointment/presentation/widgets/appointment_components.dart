@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
 import 'package:medicity_app/features/home/presentation/models/doctor_profile.dart';
+import 'package:medicity_app/shared/widgets/adaptive_avatar.dart';
 
 import '../models/appointment_models.dart';
 
@@ -89,10 +90,7 @@ class ScheduleFlowHeader extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        const ScheduleHeaderIcon(icon: Icons.phone_in_talk_outlined),
-        const SizedBox(width: 6),
-        const ScheduleHeaderIcon(icon: Icons.message_outlined),
-        const SizedBox(width: 6),
+
         const ScheduleHeaderIcon(icon: Icons.support_agent_outlined),
         const SizedBox(width: 6),
         const ScheduleHeaderIcon(icon: Icons.question_mark_rounded),
@@ -172,7 +170,11 @@ class AppointmentDoctorHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        CircleAvatar(radius: 34, backgroundImage: AssetImage(doctor.imagePath)),
+        CircleAvatar(
+          radius: 34,
+          backgroundColor: Colors.transparent,
+          child: AdaptiveAvatar(imageSource: doctor.imagePath, radius: 34),
+        ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(

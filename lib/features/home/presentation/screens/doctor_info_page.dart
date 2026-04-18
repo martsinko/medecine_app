@@ -1,51 +1,73 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/features/home/presentation/models/doctor_profile.dart';
+import 'package:medicity_app/shared/widgets/adaptive_avatar.dart';
 
-import '../models/doctor_profile.dart';
+import '../providers/teacher_provider.dart';
 import '../widgets/doctors/doctor_components.dart';
 
-class DoctorInfoPage extends StatelessWidget {
-  final DoctorProfile doctor;
+class DoctorInfoPage extends ConsumerWidget {
+  final String teacherId;
 
-  const DoctorInfoPage({super.key, required this.doctor});
+  const DoctorInfoPage({super.key, required this.teacherId});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 16, 18, 0),
-          child: ListView(
-            padding: const EdgeInsets.only(bottom: 120),
-            children: [
-              const DoctorsTopBar(title: 'Doctor Info'),
-              const SizedBox(height: 16),
-              DoctorsFilterRow(
-                onRatingTap: () => context.goNamed(AppRouteNames.ratingPage),
-                onFavoriteTap: () =>
-                    context.goNamed(AppRouteNames.wishlistPage),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref
+        .watch(teacherByIdProvider(teacherId))
+        .when(
+          data: (teacher) {
+            if (teacher == null) {
+              return const Scaffold(body: SafeArea(child: SizedBox.shrink()));
+            }
+
+            return Scaffold(
+              backgroundColor: Colors.white,
+              body: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 0),
+                  child: ListView(
+                    padding: const EdgeInsets.only(bottom: 120),
+                    children: [
+                      const DoctorsTopBar(title: 'Teacher Info'),
+                      const SizedBox(height: 16),
+                      DoctorsFilterRow(
+                        onRatingTap: () =>
+                            context.goNamed(AppRouteNames.ratingPage),
+                        onFavoriteTap: () =>
+                            context.goNamed(AppRouteNames.wishlistPage),
+                      ),
+                      const SizedBox(height: 16),
+                      _DoctorInfoCard(doctor: teacher),
+                      const SizedBox(height: 26),
+                      const SectionTitle(title: 'Profile'),
+                      const SizedBox(height: 8),
+                      _BodyCopy(text: teacher.profile),
+                      const SizedBox(height: 20),
+                      const SectionTitle(title: 'Career Path'),
+                      const SizedBox(height: 8),
+                      _BodyCopy(text: teacher.careerPath),
+                      const SizedBox(height: 20),
+                      const SectionTitle(title: 'Highlights'),
+                      const SizedBox(height: 8),
+                      _BodyCopy(text: teacher.highlights),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 16),
-              _DoctorInfoCard(doctor: doctor),
-              const SizedBox(height: 26),
-              const SectionTitle(title: 'Profile'),
-              const SizedBox(height: 8),
-              _BodyCopy(text: doctor.profile),
-              const SizedBox(height: 20),
-              const SectionTitle(title: 'Career Path'),
-              const SizedBox(height: 8),
-              _BodyCopy(text: doctor.careerPath),
-              const SizedBox(height: 20),
-              const SectionTitle(title: 'Highlights'),
-              const SizedBox(height: 8),
-              _BodyCopy(text: doctor.highlights),
-            ],
+            );
+          },
+          loading: () => const Scaffold(
+            body: SafeArea(child: Center(child: CircularProgressIndicator())),
           ),
-        ),
-      ),
-    );
+          error: (error, stackTrace) => const Scaffold(
+            body: SafeArea(
+              child: Center(child: Text('Failed to load teacher.')),
+            ),
+          ),
+        );
   }
 }
 
@@ -70,7 +92,11 @@ class _DoctorInfoCard extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 54,
-                backgroundImage: AssetImage(doctor.imagePath),
+                backgroundColor: Colors.transparent,
+                child: AdaptiveAvatar(
+                  imageSource: doctor.imagePath,
+                  radius: 54,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(

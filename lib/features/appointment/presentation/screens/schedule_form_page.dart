@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
-import 'package:medicity_app/features/home/presentation/data/doctors_mock.dart';
+import 'package:medicity_app/features/home/presentation/providers/teacher_provider.dart';
 
-import '../data/schedule_mock.dart';
 import '../models/appointment_models.dart';
 import '../providers/appointment_provider.dart';
 import '../widgets/appointment_components.dart';
@@ -42,285 +41,374 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    final doctor = getDoctorById(widget.doctorId);
     final draft = ref.watch(scheduleDraftProvider(widget.doctorId));
     final notifier = ref.read(scheduleDraftProvider(widget.doctorId).notifier);
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 12, 18, 0),
-          child: ListView(
-            padding: const EdgeInsets.only(bottom: 120),
-            children: [
-              ScheduleFlowHeader(
-                title: doctor.name,
-                onTitleTap: () => context.goNamed(
-                  AppRouteNames.scheduleDoctorPage,
-                  pathParameters: {'doctorId': doctor.id},
-                ),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
-                decoration: BoxDecoration(
-                  color: AppColors.signUpButtonBlue,
-                  borderRadius: BorderRadius.circular(26),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          scheduleMonths[draft.selectedMonthIndex],
-                          style: AppStyles.leagueSpartan16.copyWith(
-                            color: AppColors.welcomeBlue,
-                            fontWeight: FontWeight.w600,
-                          ),
+    return ref
+        .watch(teacherByIdProvider(widget.doctorId))
+        .when(
+          data: (teacher) {
+            if (teacher == null) {
+              return const Scaffold(body: SafeArea(child: SizedBox.shrink()));
+            }
+
+            final dayOptions = buildScheduleDayOptions(
+              teacher.schedule.availableDates,
+            );
+            final timeOptions = buildScheduleTimes(teacher.schedule.timeSlots);
+            _syncDraftWithTeacherSchedule(
+              notifier: notifier,
+              draft: draft,
+              dayOptions: dayOptions,
+              timeOptions: timeOptions,
+            );
+
+            return Scaffold(
+              backgroundColor: Colors.white,
+              body: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 12, 18, 0),
+                  child: ListView(
+                    padding: const EdgeInsets.only(bottom: 120),
+                    children: [
+                      ScheduleFlowHeader(
+                        title: teacher.name,
+                        onTitleTap: () => context.goNamed(
+                          AppRouteNames.scheduleDoctorPage,
+                          pathParameters: {'doctorId': teacher.id},
                         ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          color: AppColors.welcomeBlue,
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
+                        decoration: BoxDecoration(
+                          color: AppColors.signUpButtonBlue,
+                          borderRadius: BorderRadius.circular(26),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.chevron_left_rounded,
-                          color: AppColors.hintColor,
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: SizedBox(
-                            height: 86,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: scheduleWeekOptions.length,
-                              separatorBuilder: (_, index) =>
-                                  const SizedBox(width: 8),
-                              itemBuilder: (context, index) {
-                                final option = scheduleWeekOptions[index];
-                                final selected =
-                                    option.dayNumber ==
-                                    draft.selectedDay.dayNumber;
-                                return InkWell(
-                                  borderRadius: BorderRadius.circular(22),
-                                  onTap: () => notifier.selectWeekDay(option),
-                                  child: Container(
-                                    width: 56,
-                                    decoration: BoxDecoration(
-                                      color: selected
-                                          ? AppColors.welcomeBlue
-                                          : Colors.white,
-                                      borderRadius: BorderRadius.circular(22),
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          '${option.dayNumber}',
-                                          style: AppStyles.leagueSpartan24
-                                              .copyWith(
-                                                color: selected
-                                                    ? Colors.white
-                                                    : const Color(0xFF8AA0F8),
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                        ),
-                                        Text(
-                                          option.weekday,
-                                          style: AppStyles.leagueSpartan12W300
-                                              .copyWith(
-                                                color: selected
-                                                    ? Colors.white
-                                                    : const Color(0xFF8AA0F8),
-                                                fontSize: 13,
-                                              ),
-                                        ),
-                                      ],
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  scheduleMonthLabel(
+                                    teacher.schedule.availableDates,
+                                  ),
+                                  style: AppStyles.leagueSpartan16.copyWith(
+                                    color: AppColors.welcomeBlue,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  color: AppColors.welcomeBlue,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.chevron_left_rounded,
+                                  color: AppColors.hintColor,
+                                ),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: SizedBox(
+                                    height: 86,
+                                    child: ListView.separated(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: dayOptions.length,
+                                      separatorBuilder: (_, index) =>
+                                          const SizedBox(width: 8),
+                                      itemBuilder: (context, index) {
+                                        final option = dayOptions[index];
+                                        final selected =
+                                            option.fullLabel ==
+                                            draft.selectedDay.fullLabel;
+                                        return InkWell(
+                                          borderRadius: BorderRadius.circular(
+                                            22,
+                                          ),
+                                          onTap: () =>
+                                              notifier.selectWeekDay(option),
+                                          child: Container(
+                                            width: 56,
+                                            decoration: BoxDecoration(
+                                              color: selected
+                                                  ? AppColors.welcomeBlue
+                                                  : Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(22),
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  '${option.dayNumber}',
+                                                  style: AppStyles
+                                                      .leagueSpartan24
+                                                      .copyWith(
+                                                        color: selected
+                                                            ? Colors.white
+                                                            : const Color(
+                                                                0xFF8AA0F8,
+                                                              ),
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                ),
+                                                Text(
+                                                  option.weekday,
+                                                  style: AppStyles
+                                                      .leagueSpartan12W300
+                                                      .copyWith(
+                                                        color: selected
+                                                            ? Colors.white
+                                                            : const Color(
+                                                                0xFF8AA0F8,
+                                                              ),
+                                                        fontSize: 13,
+                                                      ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ),
-                                );
-                              },
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(
+                                  Icons.chevron_right_rounded,
+                                  color: AppColors.hintColor,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Available Time',
+                        style: AppStyles.leagueSpartan16.copyWith(
+                          color: AppColors.welcomeBlue,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final time in timeOptions)
+                            InkWell(
+                              borderRadius: BorderRadius.circular(999),
+                              onTap: () => notifier.selectTime(time),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: time == draft.selectedTime
+                                      ? AppColors.welcomeBlue
+                                      : AppColors.fillColor,
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  time,
+                                  style: AppStyles.leagueSpartan12W300.copyWith(
+                                    color: time == draft.selectedTime
+                                        ? Colors.white
+                                        : AppColors.hintColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      Divider(
+                        color: AppColors.hintColor.withValues(alpha: 0.6),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Patient Details',
+                        style: AppStyles.leagueSpartan16.copyWith(
+                          color: AppColors.welcomeBlue,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          _OutlinedChip(
+                            label: 'Yourself',
+                            selected: draft.bookingForSelf,
+                            onTap: () => notifier.setBookingForSelf(true),
+                          ),
+                          const SizedBox(width: 8),
+                          _OutlinedChip(
+                            label: 'Another Person',
+                            selected: !draft.bookingForSelf,
+                            onTap: () => notifier.setBookingForSelf(false),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      const _FormLabel(label: 'Full Name'),
+                      const SizedBox(height: 6),
+                      _ScheduleField(
+                        controller: _nameController,
+                        onChanged: notifier.updatePatientName,
+                      ),
+                      const SizedBox(height: 10),
+                      const _FormLabel(label: 'Age'),
+                      const SizedBox(height: 6),
+                      _ScheduleField(
+                        controller: _ageController,
+                        onChanged: notifier.updatePatientAge,
+                      ),
+                      const SizedBox(height: 10),
+                      const _FormLabel(label: 'Gender'),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          _OutlinedChip(
+                            label: 'Male',
+                            selected: draft.patientGender == PatientGender.male,
+                            onTap: () => notifier.updatePatientGender(
+                              PatientGender.male,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          color: AppColors.hintColor,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Available Time',
-                style: AppStyles.leagueSpartan16.copyWith(
-                  color: AppColors.welcomeBlue,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final time in availableScheduleTimes)
-                    InkWell(
-                      borderRadius: BorderRadius.circular(999),
-                      onTap: () => notifier.selectTime(time),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
+                          const SizedBox(width: 8),
+                          _OutlinedChip(
+                            label: 'Female',
+                            selected:
+                                draft.patientGender == PatientGender.female,
+                            onTap: () => notifier.updatePatientGender(
+                              PatientGender.female,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          _OutlinedChip(
+                            label: 'Other',
+                            selected:
+                                draft.patientGender == PatientGender.other,
+                            onTap: () => notifier.updatePatientGender(
+                              PatientGender.other,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      Divider(
+                        color: AppColors.hintColor.withValues(alpha: 0.6),
+                      ),
+                      const SizedBox(height: 10),
+                      const _FormLabel(label: 'Describe your problem'),
+                      const SizedBox(height: 8),
+                      Container(
+                        height: 110,
                         decoration: BoxDecoration(
-                          color: time == draft.selectedTime
-                              ? AppColors.welcomeBlue
-                              : AppColors.fillColor,
-                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(color: AppColors.signUpButtonBlue),
+                          borderRadius: BorderRadius.circular(22),
                         ),
-                        child: Text(
-                          time,
-                          style: AppStyles.leagueSpartan12W300.copyWith(
-                            color: time == draft.selectedTime
-                                ? Colors.white
-                                : AppColors.hintColor,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                        child: TextField(
+                          controller: _problemController,
+                          maxLines: null,
+                          expands: true,
+                          onChanged: notifier.updateProblemDescription,
+                          decoration: InputDecoration(
+                            hintText: 'Enter Your Problem Here...',
+                            hintStyle: AppStyles.leagueSpartan16.copyWith(
+                              color: AppColors.hintColor,
+                            ),
+                            contentPadding: const EdgeInsets.all(18),
+                            border: InputBorder.none,
                           ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 18),
-              Divider(color: AppColors.hintColor.withValues(alpha: 0.6)),
-              const SizedBox(height: 12),
-              Text(
-                'Patient Details',
-                style: AppStyles.leagueSpartan16.copyWith(
-                  color: AppColors.welcomeBlue,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  _OutlinedChip(
-                    label: 'Yourself',
-                    selected: draft.bookingForSelf,
-                    onTap: () => notifier.setBookingForSelf(true),
-                  ),
-                  const SizedBox(width: 8),
-                  _OutlinedChip(
-                    label: 'Another Person',
-                    selected: !draft.bookingForSelf,
-                    onTap: () => notifier.setBookingForSelf(false),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              _FormLabel(label: 'Full Name'),
-              const SizedBox(height: 6),
-              _ScheduleField(
-                controller: _nameController,
-                onChanged: notifier.updatePatientName,
-              ),
-              const SizedBox(height: 10),
-              _FormLabel(label: 'Age'),
-              const SizedBox(height: 6),
-              _ScheduleField(
-                controller: _ageController,
-                onChanged: notifier.updatePatientAge,
-              ),
-              const SizedBox(height: 10),
-              _FormLabel(label: 'Gender'),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  _OutlinedChip(
-                    label: 'Male',
-                    selected: draft.patientGender == PatientGender.male,
-                    onTap: () =>
-                        notifier.updatePatientGender(PatientGender.male),
-                  ),
-                  const SizedBox(width: 8),
-                  _OutlinedChip(
-                    label: 'Female',
-                    selected: draft.patientGender == PatientGender.female,
-                    onTap: () =>
-                        notifier.updatePatientGender(PatientGender.female),
-                  ),
-                  const SizedBox(width: 8),
-                  _OutlinedChip(
-                    label: 'Other',
-                    selected: draft.patientGender == PatientGender.other,
-                    onTap: () =>
-                        notifier.updatePatientGender(PatientGender.other),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              Divider(color: AppColors.hintColor.withValues(alpha: 0.6)),
-              const SizedBox(height: 10),
-              _FormLabel(label: 'Describe your problem'),
-              const SizedBox(height: 8),
-              Container(
-                height: 110,
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.signUpButtonBlue),
-                  borderRadius: BorderRadius.circular(22),
-                ),
-                child: TextField(
-                  controller: _problemController,
-                  maxLines: null,
-                  expands: true,
-                  onChanged: notifier.updateProblemDescription,
-                  decoration: InputDecoration(
-                    hintText: 'Enter Your Problem Here...',
-                    hintStyle: AppStyles.leagueSpartan16.copyWith(
-                      color: AppColors.hintColor,
-                    ),
-                    contentPadding: const EdgeInsets.all(18),
-                    border: InputBorder.none,
+                      const SizedBox(height: 20),
+                      AppointmentActionButton(
+                        label: 'Continue',
+                        onTap: () async {
+                          notifier.updatePatientName(
+                            _nameController.text.trim(),
+                          );
+                          notifier.updatePatientAge(_ageController.text.trim());
+                          notifier.updateProblemDescription(
+                            _problemController.text.trim(),
+                          );
+                          final appointmentId = await ref
+                              .read(appointmentActionProvider.notifier)
+                              .createScheduledAppointment(
+                                ref.read(
+                                  scheduleDraftProvider(widget.doctorId),
+                                ),
+                              );
+                          final actionState = ref.read(
+                            appointmentActionProvider,
+                          );
+                          if (actionState.hasError && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(actionState.error.toString()),
+                              ),
+                            );
+                            return;
+                          }
+                          if (context.mounted) {
+                            context.goNamed(
+                              AppRouteNames.appointmentDetailsPage,
+                              pathParameters: {'appointmentId': appointmentId},
+                            );
+                          }
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
-              AppointmentActionButton(
-                label: 'Continue',
-                onTap: () {
-                  notifier.updatePatientName(_nameController.text.trim());
-                  notifier.updatePatientAge(_ageController.text.trim());
-                  notifier.updateProblemDescription(
-                    _problemController.text.trim(),
-                  );
-                  final appointmentId = ref
-                      .read(appointmentsProvider.notifier)
-                      .createScheduledAppointment(
-                        ref.read(scheduleDraftProvider(widget.doctorId)),
-                      );
-                  context.goNamed(
-                    AppRouteNames.appointmentDetailsPage,
-                    pathParameters: {'appointmentId': appointmentId},
-                  );
-                },
-              ),
-            ],
+            );
+          },
+          loading: () => const Scaffold(
+            body: SafeArea(child: Center(child: CircularProgressIndicator())),
           ),
-        ),
-      ),
-    );
+          error: (error, stackTrace) => const Scaffold(
+            body: SafeArea(
+              child: Center(child: Text('Failed to load teacher.')),
+            ),
+          ),
+        );
+  }
+
+  void _syncDraftWithTeacherSchedule({
+    required ScheduleDraftNotifier notifier,
+    required ScheduleDraft draft,
+    required List<ScheduleDayOption> dayOptions,
+    required List<String> timeOptions,
+  }) {
+    if (dayOptions.isNotEmpty &&
+        !dayOptions.any(
+          (option) => option.fullLabel == draft.selectedDay.fullLabel,
+        )) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifier.selectWeekDay(dayOptions.first);
+      });
+    }
+
+    if (timeOptions.isNotEmpty && !timeOptions.contains(draft.selectedTime)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifier.selectTime(timeOptions.first);
+      });
+    }
   }
 }
 

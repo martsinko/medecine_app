@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
 
+import '../data/profile_mock.dart';
 import '../models/profile_models.dart';
 import '../providers/profile_provider.dart';
 import '../widgets/profile_components.dart';
@@ -23,7 +24,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
   @override
   void initState() {
     super.initState();
-    final profile = ref.read(profileProvider);
+    final profile = ref.read(profileProvider).value ?? initialProfileData;
     _fullNameController = TextEditingController(text: profile.fullName);
     _phoneController = TextEditingController(text: profile.phoneNumber);
     _emailController = TextEditingController(text: profile.email);
@@ -41,7 +42,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final profile = ref.watch(profileProvider);
+    final profile = ref.watch(profileProvider).value ?? initialProfileData;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -106,14 +107,18 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                   label: 'Update Profile',
                   onTap: () {
                     ref
-                        .read(profileProvider.notifier)
+                        .read(profileActionProvider.notifier)
                         .update(
                           ProfileData(
+                            uid: profile.uid,
                             fullName: _fullNameController.text.trim(),
                             phoneNumber: _phoneController.text.trim(),
                             email: _emailController.text.trim(),
                             dateOfBirth: _dateController.text.trim(),
                             avatarPath: profile.avatarPath,
+                            favoriteTeacherIds: profile.favoriteTeacherIds,
+                            notificationPreferences:
+                                profile.notificationPreferences,
                           ),
                         );
                     ScaffoldMessenger.of(context).showSnackBar(

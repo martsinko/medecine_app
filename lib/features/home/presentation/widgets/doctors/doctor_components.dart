@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/shared/widgets/adaptive_avatar.dart';
 
 import '../../models/doctor_profile.dart';
 
@@ -146,7 +147,8 @@ class DoctorCompactCard extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 46,
-            backgroundImage: AssetImage(doctor.imagePath),
+            backgroundColor: Colors.transparent,
+            child: AdaptiveAvatar(imageSource: doctor.imagePath, radius: 46),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -187,7 +189,7 @@ class DoctorCompactCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     RoundActionButton(
                       icon: Icons.favorite_rounded,
-                      selected: true,
+                      selected: doctor.isFavorite,
                       onTap: onFavoriteTap,
                     ),
                   ],

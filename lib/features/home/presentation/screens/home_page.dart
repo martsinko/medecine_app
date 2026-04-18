@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_index.dart';
 import '../../../../shared/widgets/teacher_card.dart';
 import '../providers/select_date_provider.dart';
+import '../providers/teacher_provider.dart';
 import '../widgets/home_page/events_mock.dart';
 import '../widgets/home_page/header_widget.dart';
 import '../widgets/home_page/timeline.dart';
@@ -57,18 +58,36 @@ class HomePage extends ConsumerWidget {
               SizedBox(height: 15),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                child: Column(
-                  spacing: 10,
-                  children: List.generate(
-                    4,
-                    (e) => TeacherCard(
-                      name: 'Dr. Olivia Turner, M.D.',
-                      description: 'Dermato-Endocrinology',
-                      rating: 5,
-                      comments: 60,
+                child: ref
+                    .watch(teachersProvider)
+                    .when(
+                      data: (teachers) => Column(
+                        spacing: 10,
+                        children: [
+                          for (final teacher in teachers.take(4))
+                            TeacherCard(
+                              name: teacher.name,
+                              description: teacher.specialty,
+                              rating: teacher.rating,
+                              comments: teacher.reviews,
+                              imagePath: teacher.imagePath,
+                            ),
+                        ],
+                      ),
+                      loading: () => const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(24),
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                      error: (error, stackTrace) => Padding(
+                        padding: const EdgeInsets.only(top: 24),
+                        child: Text(
+                          'Failed to load teachers.',
+                          style: AppStyles.leagueSpartan16,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
               ),
             ],
           ),

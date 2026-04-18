@@ -1,115 +1,146 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
 
 import '../data/doctors_mock.dart';
 import '../models/doctor_profile.dart';
+import '../providers/teacher_provider.dart';
+import '../../../profile/presentation/providers/profile_provider.dart';
 import '../widgets/doctors/doctor_components.dart';
 
-class FavoritePage extends StatefulWidget {
+class FavoritePage extends ConsumerStatefulWidget {
   const FavoritePage({super.key});
 
   @override
-  State<FavoritePage> createState() => _FavoritePageState();
+  ConsumerState<FavoritePage> createState() => _FavoritePageState();
 }
 
-class _FavoritePageState extends State<FavoritePage> {
+class _FavoritePageState extends ConsumerState<FavoritePage> {
   bool _showServices = false;
   int _expandedServiceIndex = 0;
   DoctorGender? _selectedGender;
 
   @override
   Widget build(BuildContext context) {
-    final filteredDoctors = _buildDisplayedDoctors();
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 16, 18, 0),
-          child: ListView(
-            padding: const EdgeInsets.only(bottom: 120),
-            children: [
-              DoctorsTopBar(title: _pageTitle),
-              const SizedBox(height: 16),
-              DoctorsFilterRow(
-                highlight: _showServices
-                    ? DoctorsFilterHighlight.favorite
-                    : DoctorsFilterHighlight.none,
-                showGenderFilters: true,
-                favoriteSelected: _showServices || _selectedGender == null,
-                selectedGender: _selectedGender,
-                onRatingTap: () => context.goNamed(AppRouteNames.ratingPage),
-                onFavoriteTap: () {
-                  setState(() {
-                    _showServices = false;
-                    _selectedGender = null;
-                  });
-                },
-                onFemaleTap: () => _selectGender(DoctorGender.female),
-                onMaleTap: () => _selectGender(DoctorGender.male),
-              ),
-              const SizedBox(height: 20),
-              _FavoriteTabs(
-                showServices: _showServices,
-                onSelect: (value) {
-                  setState(() {
-                    _showServices = value;
-                    if (value) {
-                      _selectedGender = null;
-                    }
-                  });
-                },
-              ),
-              const SizedBox(height: 14),
-              if (_showServices) ...[
-                for (int i = 0; i < favoriteServicesMock.length; i++) ...[
-                  _ServiceCategoryTile(
-                    category: favoriteServicesMock[i],
-                    expanded: _expandedServiceIndex == i,
-                    onTap: () {
-                      setState(() {
-                        _expandedServiceIndex = i;
-                      });
-                    },
+    return ref
+        .watch(teachersProvider)
+        .when(
+          data: (teachers) {
+            final filteredDoctors = _buildDisplayedDoctors(teachers);
+            return Scaffold(
+              backgroundColor: Colors.white,
+              body: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 0),
+                  child: ListView(
+                    padding: const EdgeInsets.only(bottom: 120),
+                    children: [
+                      DoctorsTopBar(title: _pageTitle),
+                      const SizedBox(height: 16),
+                      DoctorsFilterRow(
+                        highlight: _showServices
+                            ? DoctorsFilterHighlight.favorite
+                            : DoctorsFilterHighlight.none,
+                        showGenderFilters: true,
+                        favoriteSelected:
+                            _showServices || _selectedGender == null,
+                        selectedGender: _selectedGender,
+                        onRatingTap: () =>
+                            context.goNamed(AppRouteNames.ratingPage),
+                        onFavoriteTap: () {
+                          setState(() {
+                            _showServices = false;
+                            _selectedGender = null;
+                          });
+                        },
+                        onFemaleTap: () => _selectGender(DoctorGender.female),
+                        onMaleTap: () => _selectGender(DoctorGender.male),
+                      ),
+                      const SizedBox(height: 20),
+                      _FavoriteTabs(
+                        showServices: _showServices,
+                        onSelect: (value) {
+                          setState(() {
+                            _showServices = value;
+                            if (value) {
+                              _selectedGender = null;
+                            }
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 14),
+                      if (_showServices) ...[
+                        for (
+                          int i = 0;
+                          i < favoriteServicesMock.length;
+                          i++
+                        ) ...[
+                          _ServiceCategoryTile(
+                            category: favoriteServicesMock[i],
+                            expanded: _expandedServiceIndex == i,
+                            onTap: () {
+                              setState(() {
+                                _expandedServiceIndex = i;
+                              });
+                            },
+                          ),
+                          if (_expandedServiceIndex == i) ...[
+                            const SizedBox(height: 12),
+                            if (i == 0)
+                              PrimaryPillButton(
+                                label: 'looking teachers',
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                onTap: () =>
+                                    context.goNamed(AppRouteNames.doctorsPage),
+                              ),
+                          ],
+                          const SizedBox(height: 12),
+                        ],
+                      ] else ...[
+                        for (final doctor in filteredDoctors)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: DoctorCompactCard(
+                              doctor: doctor,
+                              onInfoTap: () => context.goNamed(
+                                AppRouteNames.doctorInfoPage,
+                                pathParameters: {'doctorId': doctor.id},
+                              ),
+                              onCalendarTap: () => context.goNamed(
+                                AppRouteNames.scheduleDoctorPage,
+                                pathParameters: {'doctorId': doctor.id},
+                              ),
+                              onDetailsTap: () => context.goNamed(
+                                AppRouteNames.doctorInfoPage,
+                                pathParameters: {'doctorId': doctor.id},
+                              ),
+                              onFavoriteTap: () => ref
+                                  .read(profileActionProvider.notifier)
+                                  .toggleFavoriteTeacher(
+                                    doctor.id,
+                                    !doctor.isFavorite,
+                                  ),
+                            ),
+                          ),
+                      ],
+                    ],
                   ),
-                  if (_expandedServiceIndex == i) ...[
-                    const SizedBox(height: 12),
-                    if (i == 0)
-                      PrimaryPillButton(
-                        label: 'looking doctors',
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        onTap: () => context.goNamed(AppRouteNames.doctorsPage),
-                      ),
-                  ],
-                  const SizedBox(height: 12),
-                ],
-              ] else ...[
-                for (final doctor in filteredDoctors)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: DoctorCompactCard(
-                      doctor: doctor,
-                      onInfoTap: () => context.goNamed(
-                        AppRouteNames.doctorInfoPage,
-                        pathParameters: {'doctorId': doctor.id},
-                      ),
-                      onCalendarTap: () => context.goNamed(
-                        AppRouteNames.scheduleDoctorPage,
-                        pathParameters: {'doctorId': doctor.id},
-                      ),
-                      onDetailsTap: () => context.goNamed(
-                        AppRouteNames.doctorInfoPage,
-                        pathParameters: {'doctorId': doctor.id},
-                      ),
-                      onFavoriteTap: () {},
-                    ),
-                  ),
-              ],
-            ],
+                ),
+              ),
+            );
+          },
+          loading: () => const Scaffold(
+            body: SafeArea(child: Center(child: CircularProgressIndicator())),
           ),
-        ),
-      ),
-    );
+          error: (error, stackTrace) => const Scaffold(
+            body: SafeArea(
+              child: Center(child: Text('Failed to load favorites.')),
+            ),
+          ),
+        );
   }
 
   String get _pageTitle {
@@ -131,8 +162,14 @@ class _FavoritePageState extends State<FavoritePage> {
     });
   }
 
-  List<DoctorProfile> _buildDisplayedDoctors() {
-    final doctors = getFavoriteDoctorsByGender(_selectedGender);
+  List<DoctorProfile> _buildDisplayedDoctors(List<DoctorProfile> teachers) {
+    final doctors = teachers
+        .where((teacher) => teacher.isFavorite)
+        .where(
+          (teacher) =>
+              _selectedGender == null || teacher.gender == _selectedGender,
+        )
+        .toList();
     if (_selectedGender == null || doctors.length > 2) {
       return doctors;
     }
@@ -159,7 +196,7 @@ class _FavoriteTabs extends StatelessWidget {
         children: [
           Expanded(
             child: _FavoriteTabButton(
-              label: 'Doctors',
+              label: 'Teachers',
               selected: !showServices,
               onTap: () => onSelect(false),
             ),

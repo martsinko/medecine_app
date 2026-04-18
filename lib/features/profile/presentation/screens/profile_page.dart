@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
 
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../data/profile_mock.dart';
 import '../providers/profile_provider.dart';
 import '../widgets/profile_components.dart';
@@ -12,51 +13,61 @@ class ProfilePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profile = ref.watch(profileProvider);
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 18, 24, 0),
-          child: ListView(
-            padding: const EdgeInsets.only(bottom: 120),
-            children: [
-              ProfileTopBar(
-                title: 'My Profile',
-                onBackTap: () => context.goNamed(AppRouteNames.homePage),
+    return ref.watch(profileProvider).when(
+      data: (profile) {
+        final currentProfile = profile ?? initialProfileData;
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 18, 24, 0),
+              child: ListView(
+                padding: const EdgeInsets.only(bottom: 120),
+                children: [
+                  ProfileTopBar(
+                    title: 'My Profile',
+                    onBackTap: () => context.goNamed(AppRouteNames.homePage),
+                  ),
+                  const SizedBox(height: 18),
+                  Center(
+                    child: ProfileAvatar(
+                      imagePath: currentProfile.avatarPath,
+                      onActionTap: () =>
+                          context.pushNamed(AppRouteNames.editProfilePage),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    currentProfile.fullName,
+                    textAlign: TextAlign.center,
+                    style: AppStyles.leagueSpartan24.copyWith(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  for (final item in profileMenuEntries)
+                    ProfileMenuTile(
+                      icon: item.icon,
+                      title: item.title,
+                      onTap: () => _handleMenuTap(context, ref, item.title),
+                    ),
+                ],
               ),
-              const SizedBox(height: 18),
-              Center(
-                child: ProfileAvatar(
-                  imagePath: profile.avatarPath,
-                  onActionTap: () =>
-                      context.pushNamed(AppRouteNames.editProfilePage),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                profile.fullName,
-                textAlign: TextAlign.center,
-                style: AppStyles.leagueSpartan24.copyWith(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 28),
-              for (final item in profileMenuEntries)
-                ProfileMenuTile(
-                  icon: item.icon,
-                  title: item.title,
-                  onTap: () => _handleMenuTap(context, item.title),
-                ),
-            ],
+            ),
           ),
-        ),
+        );
+      },
+      loading: () => const Scaffold(
+        body: SafeArea(child: Center(child: CircularProgressIndicator())),
+      ),
+      error: (error, stackTrace) => const Scaffold(
+        body: SafeArea(child: Center(child: Text('Failed to load profile.'))),
       ),
     );
   }
 
-  void _handleMenuTap(BuildContext context, String title) {
+  void _handleMenuTap(BuildContext context, WidgetRef ref, String title) {
     switch (title) {
       case 'Profile':
         context.pushNamed(AppRouteNames.editProfilePage);
@@ -69,7 +80,7 @@ class ProfilePage extends ConsumerWidget {
       case 'Help':
         context.pushNamed(AppRouteNames.helpCenterPage);
       case 'Logout':
-        _showLogoutSheet(context);
+        _showLogoutSheet(context, ref);
       case 'Payment Method':
         _showComingSoon(context, 'Payment method screen');
     }
@@ -81,7 +92,7 @@ class ProfilePage extends ConsumerWidget {
     ).showSnackBar(SnackBar(content: Text('$title is not implemented yet.')));
   }
 
-  void _showLogoutSheet(BuildContext context) {
+  void _showLogoutSheet(BuildContext context, WidgetRef ref) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -127,9 +138,12 @@ class ProfilePage extends ConsumerWidget {
                     child: _LogoutActionButton(
                       label: 'Yes, Logout',
                       selected: true,
-                      onTap: () {
+                      onTap: () async {
                         Navigator.of(context).pop();
-                        context.goNamed(AppRouteNames.welcomeScreen);
+                        await ref.read(authActionProvider.notifier).signOut();
+                        if (context.mounted) {
+                          context.goNamed(AppRouteNames.welcomeScreen);
+                        }
                       },
                     ),
                   ),
