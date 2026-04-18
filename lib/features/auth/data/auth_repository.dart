@@ -76,28 +76,25 @@ class AuthRepository {
         photoUrl: user.photoURL ?? '',
       );
 
-      return userCredential;
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'network_request_failed') {
-        throw FirebaseAuthException(
-          code: 'network_error',
-          message: 'Network error. Please check your internet connection.',
-        );
-      }
-      if (e.code == 'user-disabled') {
-        throw FirebaseAuthException(
-          code: 'user_disabled',
-          message: 'This account has been disabled.',
-        );
-      }
-      if (e.code == 'user-token-expired') {
-        throw FirebaseAuthException(
-          code: 'token_expired',
-          message: 'Session expired. Please sign in again.',
-        );
-      }
+return userCredential;
+    } catch (e) {
       rethrow;
     }
+  }
+
+  Future<void> changePassword(String currentPassword, String newPassword) async {
+    final user = auth.currentUser;
+    if (user == null) {
+      throw Exception('No user logged in');
+    }
+
+    final credential = EmailAuthProvider.credential(
+      email: user.email!,
+      password: currentPassword,
+    );
+
+    await user.reauthenticateWithCredential(credential);
+    await user.updatePassword(newPassword);
   }
 
   Future<void> signOut() async {

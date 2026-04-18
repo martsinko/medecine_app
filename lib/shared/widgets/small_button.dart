@@ -28,7 +28,7 @@ class SmallButton extends StatelessWidget {
         ),
         child: Icon(
           icon, size: 12,
-          color: selected ? Colors.red : AppColors.welcomeBlue,
+          color: selected ? AppColors.welcomeBlue : AppColors.hintColor,
         ),
       ),
     );

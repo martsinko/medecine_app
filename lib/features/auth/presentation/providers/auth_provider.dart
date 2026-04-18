@@ -58,4 +58,11 @@ class AuthActionNotifier extends StateNotifier<AsyncValue<void>> {
     state = const AsyncLoading();
     state = await AsyncValue.guard(_repository.signOut);
   }
+
+  Future<void> changePassword(String currentPassword, String newPassword) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => _repository.changePassword(currentPassword, newPassword),
+    );
+  }
 }

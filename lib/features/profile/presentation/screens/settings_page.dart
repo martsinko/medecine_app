@@ -27,7 +27,7 @@ class SettingsPage extends StatelessWidget {
               SettingsTile(
                 icon: Icons.key_outlined,
                 title: 'Password Manager',
-                onTap: () => _showComingSoon(context, 'Password Manager'),
+                onTap: () => context.pushNamed(AppRouteNames.setPassword),
               ),
               SettingsTile(
                 icon: Icons.person_outline_rounded,

@@ -272,8 +272,14 @@ class AppointmentActionButton extends StatelessWidget {
 class CircleIconAction extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
+  final bool selected;
 
-  const CircleIconAction({super.key, required this.icon, required this.onTap});
+  const CircleIconAction({
+    super.key,
+    required this.icon,
+    required this.onTap,
+    this.selected = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -287,7 +293,7 @@ class CircleIconAction extends StatelessWidget {
           color: Colors.white,
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: AppColors.welcomeBlue, size: 18),
+        child: Icon(icon, color: selected ? AppColors.welcomeBlue : AppColors.hintColor, size: 18),
       ),
     );
   }

@@ -7,6 +7,22 @@ import '../../models/doctor_profile.dart';
 
 enum DoctorsFilterHighlight { none, rating, favorite }
 
+enum SortOption { alphabetical, rating, favorite }
+
+class SortOptionState {
+  final SortOption sort;
+  final DoctorGender? gender;
+  
+  const SortOptionState({this.sort = SortOption.alphabetical, this.gender});
+  
+  SortOptionState copyWith({SortOption? sort, DoctorGender? gender, bool clearGender = false}) {
+    return SortOptionState(
+      sort: sort ?? this.sort,
+      gender: clearGender ? null : (gender ?? this.gender),
+    );
+  }
+}
+
 class DoctorsTopBar extends StatelessWidget {
   final String title;
 
@@ -47,6 +63,7 @@ class DoctorsFilterRow extends StatelessWidget {
   final DoctorsFilterHighlight highlight;
   final VoidCallback? onRatingTap;
   final VoidCallback? onFavoriteTap;
+  final VoidCallback? onAZTap;
   final bool showGenderFilters;
   final bool favoriteSelected;
   final DoctorGender? selectedGender;
@@ -58,6 +75,7 @@ class DoctorsFilterRow extends StatelessWidget {
     this.highlight = DoctorsFilterHighlight.none,
     this.onRatingTap,
     this.onFavoriteTap,
+    this.onAZTap,
     this.showGenderFilters = false,
     this.favoriteSelected = false,
     this.selectedGender,
@@ -79,7 +97,7 @@ class DoctorsFilterRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          _LabelFilterChip(label: 'A - Z', selected: true, onTap: () {}),
+          _LabelFilterChip(label: 'A - Z', selected: false, onTap: onAZTap),
           const SizedBox(width: 8),
           _IconFilterChip(
             icon: Icons.star_rounded,

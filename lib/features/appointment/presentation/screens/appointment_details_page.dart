@@ -83,6 +83,7 @@ class AppointmentDetailsPage extends ConsumerWidget {
                                               ? Icons.favorite_rounded
                                               : Icons.favorite_border_rounded,
                                           onTap: () {},
+                                          selected: teacher.isFavorite,
                                         ),
                                       ],
                                     ),
