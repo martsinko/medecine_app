@@ -4,6 +4,7 @@ import 'package:medicity_app/core/constants/app_index.dart';
 import 'package:medicity_app/shared/widgets/teacher_card.dart';
 import 'package:medicity_app/features/appointment/presentation/models/appointment_models.dart';
 import 'package:medicity_app/features/appointment/presentation/providers/appointment_provider.dart';
+import '../models/doctor_profile.dart';
 import '../providers/select_date_provider.dart';
 import '../providers/teacher_provider.dart';
 import '../widgets/home_page/events_mock.dart';
@@ -28,6 +29,7 @@ class HomePage extends ConsumerWidget {
     final eventsForDay = eventsMock[selectedDateWithoutTime] ?? [];
 
     final appointmentsAsync = ref.watch(appointmentsProvider);
+    final teachersAsync = ref.watch(teachersProvider);
     final selectedMonth = selectedDateWithoutTime.month;
     final selectedDay = selectedDateWithoutTime.day;
     final selectedYear = selectedDateWithoutTime.year;
@@ -76,19 +78,13 @@ class HomePage extends ConsumerWidget {
                               : <DateTime, List<Event>>{};
 
                           if (dayAppointments.isNotEmpty) {
-                            final teachersAsync = ref.read(teachersProvider);
                             events[selectedDateWithoutTime] = [
                               for (final appt in dayAppointments)
                                 Event(
-                                  title:
-                                      teachersAsync.value
-                                          ?.firstWhere(
-                                            (t) => t.id == appt.doctorId,
-                                            orElse: () =>
-                                                teachersAsync.value!.first,
-                                          )
-                                          .name ??
-                                      'Unknown',
+                                  title: _teacherNameById(
+                                    teachersAsync.value,
+                                    appt.doctorId,
+                                  ),
                                   description:
                                       '${appt.timeLabel} - ${appt.patientName}',
                                   hour: _parseHour(appt.timeLabel),
@@ -105,7 +101,7 @@ class HomePage extends ConsumerWidget {
                         },
                         loading: () =>
                             const Center(child: CircularProgressIndicator()),
-                        error: (_, __) => Timeline(
+                        error: (error, stackTrace) => Timeline(
                           selectedDate: selectedDateWithoutTime,
                           events: {selectedDateWithoutTime: eventsForDay},
                         ),
@@ -117,64 +113,62 @@ class HomePage extends ConsumerWidget {
               SizedBox(height: 15),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                child: ref
-                    .watch(teachersProvider)
-                    .when(
-                      data: (teachers) {
-                        final filteredTeachers = searchQuery.isEmpty
-                            ? teachers.take(4).toList()
-                            : teachers
-                                  .where(
-                                    (t) =>
-                                        t.name.toLowerCase().contains(
-                                          searchQuery,
-                                        ) ||
-                                        t.specialty.toLowerCase().contains(
-                                          searchQuery,
-                                        ),
-                                  )
-                                  .toList();
+                child: teachersAsync.when(
+                  data: (teachers) {
+                    final filteredTeachers = searchQuery.isEmpty
+                        ? teachers.take(4).toList()
+                        : teachers
+                              .where(
+                                (t) =>
+                                    t.name.toLowerCase().contains(
+                                      searchQuery,
+                                    ) ||
+                                    t.specialty.toLowerCase().contains(
+                                      searchQuery,
+                                    ),
+                              )
+                              .toList();
 
-                        if (filteredTeachers.isEmpty) {
-                          return Padding(
-                            padding: EdgeInsets.all(24),
-                            child: Text(
-                              'No teachers found.',
-                              style: AppStyles.leagueSpartan16,
-                            ),
-                          );
-                        }
-
-                        return Column(
-                          spacing: 10,
-                          children: [
-                            for (final teacher in filteredTeachers)
-                              TeacherCard(
-                                name: teacher.name,
-                                description: teacher.specialty,
-                                rating: teacher.rating,
-                                comments: teacher.reviews,
-                                imagePath: teacher.imagePath,
-                                teacherId: teacher.id,
-                                isFavorite: teacher.isFavorite,
-                              ),
-                          ],
-                        );
-                      },
-                      loading: () => const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(24),
-                          child: CircularProgressIndicator(),
-                        ),
-                      ),
-                      error: (error, stackTrace) => Padding(
-                        padding: const EdgeInsets.only(top: 24),
+                    if (filteredTeachers.isEmpty) {
+                      return Padding(
+                        padding: EdgeInsets.all(24),
                         child: Text(
-                          'Failed to load teachers.',
+                          'No teachers found.',
                           style: AppStyles.leagueSpartan16,
                         ),
-                      ),
+                      );
+                    }
+
+                    return Column(
+                      spacing: 10,
+                      children: [
+                        for (final teacher in filteredTeachers)
+                          TeacherCard(
+                            name: teacher.name,
+                            description: teacher.specialty,
+                            rating: teacher.rating,
+                            comments: teacher.reviews,
+                            imagePath: teacher.imagePath,
+                            teacherId: teacher.id,
+                            isFavorite: teacher.isFavorite,
+                          ),
+                      ],
+                    );
+                  },
+                  loading: () => const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: CircularProgressIndicator(),
                     ),
+                  ),
+                  error: (error, stackTrace) => Padding(
+                    padding: const EdgeInsets.only(top: 24),
+                    child: Text(
+                      'Failed to load teachers.',
+                      style: AppStyles.leagueSpartan16,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -182,6 +176,20 @@ class HomePage extends ConsumerWidget {
       ),
     );
   }
+}
+
+String _teacherNameById(List<DoctorProfile>? teachers, String teacherId) {
+  if (teachers == null || teachers.isEmpty) {
+    return 'Unknown';
+  }
+
+  for (final teacher in teachers) {
+    if (teacher.id == teacherId) {
+      return teacher.name;
+    }
+  }
+
+  return 'Unknown';
 }
 
 bool _matchesDate(String dateLabel, int month, int day, int year) {

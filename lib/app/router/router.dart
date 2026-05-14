@@ -24,7 +24,7 @@ import 'package:medicity_app/features/profile/presentation/screens/profile_page.
 import 'package:medicity_app/features/profile/presentation/screens/settings_page.dart';
 import '../../features/auth/presentation/screens/set_password_page.dart';
 import '../../features/auth/presentation/screens/sign_up_page.dart';
-import '../../features/home/presentation/screens/doctors_page.dart';
+import '../../features/home/presentation/screens/teachers_page.dart';
 import '../../features/home/presentation/screens/favorite_page.dart';
 import '../../shared/widgets/custom_bottom_nav_bar.dart';
 
@@ -69,21 +69,21 @@ class AppRouter {
             },
           ),
           GoRoute(
-            path: AppRoutePaths.doctorsPage,
-            name: AppRouteNames.doctorsPage,
+            path: AppRoutePaths.teachersPage,
+            name: AppRouteNames.teachersPage,
             builder: (context, state) {
-              return const DoctorsPage();
+              return const TeachersPage();
             },
           ),
           GoRoute(
-            path: AppRoutePaths.doctorInfoPage,
-            name: AppRouteNames.doctorInfoPage,
+            path: AppRoutePaths.teacherInfoPage,
+            name: AppRouteNames.teacherInfoPage,
             builder: (context, state) {
-              final teacherId = state.pathParameters['doctorId'];
+              final teacherId = state.pathParameters['teacherId'];
               if (teacherId == null || teacherId.isEmpty) {
                 return Scaffold(
                   appBar: AppBar(title: const Text('Error')),
-                  body: const Center(child: Text('Invalid doctor selection')),
+                  body: const Center(child: Text('Invalid teacher selection')),
                 );
               }
               return DoctorInfoPage(teacherId: teacherId);
@@ -121,31 +121,31 @@ class AppRouter {
             },
           ),
           GoRoute(
-            path: AppRoutePaths.scheduleDoctorPage,
-            name: AppRouteNames.scheduleDoctorPage,
+            path: AppRoutePaths.scheduleTeacherPage,
+            name: AppRouteNames.scheduleTeacherPage,
             builder: (context, state) {
-              final doctorId = state.pathParameters['doctorId'];
-              if (doctorId == null || doctorId.isEmpty) {
+              final teacherId = state.pathParameters['teacherId'];
+              if (teacherId == null || teacherId.isEmpty) {
                 return Scaffold(
                   appBar: AppBar(title: const Text('Error')),
-                  body: const Center(child: Text('Invalid doctor selection')),
+                  body: const Center(child: Text('Invalid teacher selection')),
                 );
               }
-              return ScheduleDoctorPage(doctorId: doctorId);
+              return ScheduleDoctorPage(doctorId: teacherId);
             },
           ),
           GoRoute(
             path: AppRoutePaths.scheduleFormPage,
             name: AppRouteNames.scheduleFormPage,
             builder: (context, state) {
-              final doctorId = state.pathParameters['doctorId'];
-              if (doctorId == null || doctorId.isEmpty) {
+              final teacherId = state.pathParameters['teacherId'];
+              if (teacherId == null || teacherId.isEmpty) {
                 return Scaffold(
                   appBar: AppBar(title: const Text('Error')),
-                  body: const Center(child: Text('Invalid doctor selection')),
+                  body: const Center(child: Text('Invalid teacher selection')),
                 );
               }
-              return ScheduleFormPage(doctorId: doctorId);
+              return ScheduleFormPage(doctorId: teacherId);
             },
           ),
           GoRoute(
@@ -221,7 +221,10 @@ class AppRouter {
       GoRoute(
         path: AppRoutePaths.setPassword,
         name: AppRouteNames.setPassword,
-        builder: (context, state) => const SetPasswordPage(),
+        builder: (context, state) {
+          final isPasswordManager = state.extra as bool? ?? false;
+          return SetPasswordPage(isPasswordManager: isPasswordManager);
+        },
       ),
       GoRoute(
         path: AppRoutePaths.editProfilePage,

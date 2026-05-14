@@ -7,7 +7,7 @@ import 'package:medicity_app/features/profile/presentation/providers/profile_pro
 import 'package:medicity_app/shared/widgets/adaptive_avatar.dart';
 
 import '../providers/teacher_provider.dart';
-import '../widgets/doctors/doctor_components.dart';
+import '../widgets/teachers/teacher_components.dart';
 
 class DoctorInfoPage extends ConsumerWidget {
   final String teacherId;
@@ -35,13 +35,17 @@ class DoctorInfoPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context, WidgetRef ref, DoctorProfile teacher) {
+  Widget _buildContent(
+    BuildContext context,
+    WidgetRef ref,
+    DoctorProfile teacher,
+  ) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 0),
       child: ListView(
         padding: const EdgeInsets.only(bottom: 120),
         children: [
-          const DoctorsTopBar(title: 'Teacher Info'),
+          const TeachersTopBar(title: 'Teacher Info'),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -54,7 +58,7 @@ class DoctorInfoPage extends ConsumerWidget {
               RoundActionButton(
                 icon: Icons.favorite_rounded,
                 selected: teacher.isFavorite,
-                onTap: () => ref.read(profileActionProvider.notifier).toggleFavoriteTeacher(teacher.id, !teacher.isFavorite),
+                onTap: () => _toggleFavorite(context, ref, teacher),
               ),
             ],
           ),
@@ -76,6 +80,21 @@ class DoctorInfoPage extends ConsumerWidget {
       ),
     );
   }
+
+  Future<void> _toggleFavorite(
+    BuildContext context,
+    WidgetRef ref,
+    DoctorProfile teacher,
+  ) async {
+    if (ref.read(currentUserIdProvider) == null) {
+      context.goNamed(AppRouteNames.loginPage);
+      return;
+    }
+
+    await ref
+        .read(profileActionProvider.notifier)
+        .toggleFavoriteTeacher(teacher.id, !teacher.isFavorite);
+  }
 }
 
 class _DoctorInfoCard extends StatelessWidget {
@@ -95,10 +114,7 @@ class _DoctorInfoCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              AdaptiveAvatar(
-                imageSource: doctor.imagePath,
-                radius: 56,
-              ),
+              AdaptiveAvatar(imageSource: doctor.imagePath, radius: 56),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -119,23 +135,53 @@ class _DoctorInfoCard extends StatelessWidget {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
-                          child: Row(children: [
-                            Icon(Icons.star_rounded, size: 14, color: AppColors.welcomeBlue),
-                            const SizedBox(width: 4),
-                            Text(doctor.rating.toStringAsFixed(1), style: AppStyles.leagueSpartan12W300),
-                          ]),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.star_rounded,
+                                size: 14,
+                                color: AppColors.welcomeBlue,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                doctor.rating.toStringAsFixed(1),
+                                style: AppStyles.leagueSpartan12W300,
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
-                          child: Row(children: [
-                            Icon(Icons.work_outline, size: 14, color: AppColors.welcomeBlue),
-                            const SizedBox(width: 4),
-                            Text('${doctor.experienceYears}y', style: AppStyles.leagueSpartan12W300),
-                          ]),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.work_outline,
+                                size: 14,
+                                color: AppColors.welcomeBlue,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${doctor.experienceYears}y',
+                                style: AppStyles.leagueSpartan12W300,
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -157,22 +203,47 @@ class _DoctorInfoCard extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.calendar_today_outlined, color: AppColors.welcomeBlue, size: 18),
+                      Icon(
+                        Icons.calendar_today_outlined,
+                        color: AppColors.welcomeBlue,
+                        size: 18,
+                      ),
                       const SizedBox(width: 8),
-                      Text(doctor.availability, style: AppStyles.leagueSpartan12W300.copyWith(color: AppColors.welcomeBlue, fontWeight: FontWeight.w500)),
+                      Text(
+                        doctor.availability,
+                        style: AppStyles.leagueSpartan12W300.copyWith(
+                          color: AppColors.welcomeBlue,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 14,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                ),
                 child: Row(
                   children: [
-                    Icon(Icons.location_on_outlined, color: AppColors.welcomeBlue, size: 18),
+                    Icon(
+                      Icons.location_on_outlined,
+                      color: AppColors.welcomeBlue,
+                      size: 18,
+                    ),
                     const SizedBox(width: 4),
-                    Text('地图', style: AppStyles.leagueSpartan14.copyWith(color: AppColors.welcomeBlue)),
+                    Text(
+                      'Map',
+                      style: AppStyles.leagueSpartan14.copyWith(
+                        color: AppColors.welcomeBlue,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -190,6 +261,9 @@ class _BodyCopy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(text, style: AppStyles.leagueSpartan12W300.copyWith(height: 1.5));
+    return Text(
+      text,
+      style: AppStyles.leagueSpartan12W300.copyWith(height: 1.5),
+    );
   }
 }

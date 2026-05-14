@@ -7,7 +7,7 @@ import 'package:medicity_app/shared/widgets/adaptive_avatar.dart';
 import '../models/doctor_profile.dart';
 import '../providers/teacher_provider.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
-import '../widgets/doctors/doctor_components.dart';
+import '../widgets/teachers/teacher_components.dart';
 
 class RatingPage extends ConsumerWidget {
   const RatingPage({super.key});
@@ -32,12 +32,12 @@ class RatingPage extends ConsumerWidget {
                     separatorBuilder: (_, index) => const SizedBox(height: 16),
                     itemBuilder: (context, index) {
                       if (index == 0) {
-                        return const DoctorsTopBar(title: 'Rating');
+                        return const TeachersTopBar(title: 'Rating');
                       }
 
                       if (index == 1) {
-                        return DoctorsFilterRow(
-                          highlight: DoctorsFilterHighlight.rating,
+                        return TeachersFilterRow(
+                          highlight: TeachersFilterHighlight.rating,
                           onRatingTap: () {},
                           onFavoriteTap: () =>
                               context.goNamed(AppRouteNames.wishlistPage),
@@ -145,16 +145,16 @@ class _RatedDoctorCard extends ConsumerWidget {
               PrimaryPillButton(
                 label: 'Info',
                 onTap: () => context.goNamed(
-                  AppRouteNames.doctorInfoPage,
-                  pathParameters: {'doctorId': doctor.id},
+                  AppRouteNames.teacherInfoPage,
+                  pathParameters: {'teacherId': doctor.id},
                 ),
               ),
               const Spacer(),
               RoundActionButton(
                 icon: Icons.calendar_month_rounded,
                 onTap: () => context.goNamed(
-                  AppRouteNames.scheduleDoctorPage,
-                  pathParameters: {'doctorId': doctor.id},
+                  AppRouteNames.scheduleTeacherPage,
+                  pathParameters: {'teacherId': doctor.id},
                 ),
               ),
               const SizedBox(width: 4),
@@ -165,15 +165,28 @@ class _RatedDoctorCard extends ConsumerWidget {
               RoundActionButton(
                 icon: Icons.favorite_rounded,
                 selected: doctor.isFavorite,
-                onTap: () => ref
-                    .read(profileActionProvider.notifier)
-                    .toggleFavoriteTeacher(doctor.id, !doctor.isFavorite),
+                onTap: () => _toggleFavorite(context, ref, doctor),
               ),
             ],
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _toggleFavorite(
+    BuildContext context,
+    WidgetRef ref,
+    DoctorProfile teacher,
+  ) async {
+    if (ref.read(currentUserIdProvider) == null) {
+      context.goNamed(AppRouteNames.loginPage);
+      return;
+    }
+
+    await ref
+        .read(profileActionProvider.notifier)
+        .toggleFavoriteTeacher(teacher.id, !teacher.isFavorite);
   }
 }
 

@@ -39,6 +39,7 @@ abstract final class AppString {
 
   //Home Page
   static const String welcomeBackText = 'Hi, Welcome Back';
-  static const String doctorsText = 'Doctors';
+  static const String teachersText = 'Teachers';
+  static const String doctorsText = teachersText;
   static const String favouriteText = 'Favorite';
 }

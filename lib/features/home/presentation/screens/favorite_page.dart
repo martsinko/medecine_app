@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
 
-import '../data/doctors_mock.dart';
+import '../data/teachers_mock.dart';
 import '../models/doctor_profile.dart';
 import '../providers/teacher_provider.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
-import '../widgets/doctors/doctor_components.dart';
+import '../widgets/teachers/teacher_components.dart';
 
 class FavoritePage extends ConsumerStatefulWidget {
   const FavoritePage({super.key});
@@ -18,8 +18,9 @@ class FavoritePage extends ConsumerStatefulWidget {
 
 class _FavoritePageState extends ConsumerState<FavoritePage> {
   bool _showServices = false;
-  int _expandedServiceIndex = 0;
+  int? _expandedServiceIndex = 0;
   DoctorGender? _selectedGender;
+  bool _favoriteOnly = true;
 
   @override
   Widget build(BuildContext context) {
@@ -36,22 +37,21 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                   child: ListView(
                     padding: const EdgeInsets.only(bottom: 120),
                     children: [
-                      DoctorsTopBar(title: _pageTitle),
+                      TeachersTopBar(title: _pageTitle),
                       const SizedBox(height: 16),
-                      DoctorsFilterRow(
+                      TeachersFilterRow(
                         highlight: _showServices
-                            ? DoctorsFilterHighlight.favorite
-                            : DoctorsFilterHighlight.none,
+                            ? TeachersFilterHighlight.favorite
+                            : TeachersFilterHighlight.none,
                         showGenderFilters: true,
-                        favoriteSelected:
-                            _showServices || _selectedGender == null,
+                        favoriteSelected: _showServices || _favoriteOnly,
                         selectedGender: _selectedGender,
                         onRatingTap: () =>
                             context.goNamed(AppRouteNames.ratingPage),
                         onFavoriteTap: () {
                           setState(() {
                             _showServices = false;
-                            _selectedGender = null;
+                            _favoriteOnly = !_favoriteOnly;
                           });
                         },
                         onFemaleTap: () => _selectGender(DoctorGender.female),
@@ -81,7 +81,8 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                             expanded: _expandedServiceIndex == i,
                             onTap: () {
                               setState(() {
-                                _expandedServiceIndex = i;
+                                _expandedServiceIndex =
+                                    _expandedServiceIndex == i ? null : i;
                               });
                             },
                           ),
@@ -89,42 +90,41 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                             const SizedBox(height: 12),
                             if (i == 0)
                               PrimaryPillButton(
-                                label: 'looking teachers',
+                                label: 'Find a programming teacher',
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 12,
                                 ),
                                 onTap: () =>
-                                    context.goNamed(AppRouteNames.doctorsPage),
+                                    context.goNamed(AppRouteNames.teachersPage),
                               ),
                           ],
                           const SizedBox(height: 12),
                         ],
                       ] else ...[
-                        for (final doctor in filteredDoctors)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: DoctorCompactCard(
-                              doctor: doctor,
-                              onInfoTap: () => context.goNamed(
-                                AppRouteNames.doctorInfoPage,
-                                pathParameters: {'doctorId': doctor.id},
+                        if (filteredDoctors.isEmpty)
+                          const _EmptyFavoritesMessage()
+                        else
+                          for (final doctor in filteredDoctors)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: TeacherCompactCard(
+                                doctor: doctor,
+                                onInfoTap: () => context.goNamed(
+                                  AppRouteNames.teacherInfoPage,
+                                  pathParameters: {'teacherId': doctor.id},
+                                ),
+                                onCalendarTap: () => context.goNamed(
+                                  AppRouteNames.scheduleTeacherPage,
+                                  pathParameters: {'teacherId': doctor.id},
+                                ),
+                                onDetailsTap: () => context.goNamed(
+                                  AppRouteNames.teacherInfoPage,
+                                  pathParameters: {'teacherId': doctor.id},
+                                ),
+                                onFavoriteTap: () =>
+                                    _toggleFavorite(context, ref, doctor),
                               ),
-                              onCalendarTap: () => context.goNamed(
-                                AppRouteNames.scheduleDoctorPage,
-                                pathParameters: {'doctorId': doctor.id},
-                              ),
-                              onDetailsTap: () => context.goNamed(
-                                AppRouteNames.doctorInfoPage,
-                                pathParameters: {'doctorId': doctor.id},
-                              ),
-                              onFavoriteTap: () => ref
-                                  .read(profileActionProvider.notifier)
-                                  .toggleFavoriteTeacher(
-                                    doctor.id,
-                                    !doctor.isFavorite,
-                                  ),
                             ),
-                          ),
                       ],
                     ],
                   ),
@@ -149,9 +149,9 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
     }
 
     return switch (_selectedGender) {
-      DoctorGender.female => 'Female',
-      DoctorGender.male => 'Male',
-      null => 'Favorite',
+      DoctorGender.female => _favoriteOnly ? 'Favorite Female' : 'Female',
+      DoctorGender.male => _favoriteOnly ? 'Favorite Male' : 'Male',
+      null => _favoriteOnly ? 'Favorite' : 'Teachers',
     };
   }
 
@@ -163,18 +163,46 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
   }
 
   List<DoctorProfile> _buildDisplayedDoctors(List<DoctorProfile> teachers) {
-    final doctors = teachers
-        .where((teacher) => teacher.isFavorite)
+    return teachers
+        .where((teacher) => !_favoriteOnly || teacher.isFavorite)
         .where(
           (teacher) =>
               _selectedGender == null || teacher.gender == _selectedGender,
         )
         .toList();
-    if (_selectedGender == null || doctors.length > 2) {
-      return doctors;
+  }
+
+  Future<void> _toggleFavorite(
+    BuildContext context,
+    WidgetRef ref,
+    DoctorProfile teacher,
+  ) async {
+    if (ref.read(currentUserIdProvider) == null) {
+      context.goNamed(AppRouteNames.loginPage);
+      return;
     }
 
-    return [...doctors, ...doctors];
+    await ref
+        .read(profileActionProvider.notifier)
+        .toggleFavoriteTeacher(teacher.id, !teacher.isFavorite);
+  }
+}
+
+class _EmptyFavoritesMessage extends StatelessWidget {
+  const _EmptyFavoritesMessage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      child: Text(
+        'No teachers match selected filters.',
+        textAlign: TextAlign.center,
+        style: AppStyles.leagueSpartan16.copyWith(
+          color: const Color(0xFF5E5E5E),
+        ),
+      ),
+    );
   }
 }
 
@@ -281,7 +309,7 @@ class _ServiceCategoryTile extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
-                      Icons.favorite_rounded,
+                      Icons.code_rounded,
                       color: expanded ? AppColors.welcomeBlue : Colors.white,
                       size: 20,
                     ),

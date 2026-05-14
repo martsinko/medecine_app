@@ -6,13 +6,13 @@ abstract final class AppRoutePaths {
   static const String signUpPage = '/signup';
   static const String setPassword = '/set_password';
   static const String homePage = '/home';
-  static const String doctorsPage = '/doctors';
-  static const String doctorInfoPage = '/doctors/:doctorId';
+  static const String teachersPage = '/teachers';
+  static const String teacherInfoPage = '/teachers/:teacherId';
   static const String ratingPage = '/ratings';
   static const String wishlistPage = '/wishlist';
   static const String appointmentsPage = '/appointments';
-  static const String scheduleDoctorPage = '/schedule/:doctorId';
-  static const String scheduleFormPage = '/schedule/:doctorId/form';
+  static const String scheduleTeacherPage = '/schedule/:teacherId';
+  static const String scheduleFormPage = '/schedule/:teacherId/form';
   static const String appointmentDetailsPage =
       '/appointments/details/:appointmentId';
   static const String cancelAppointmentPage =
@@ -33,13 +33,13 @@ abstract final class AppRouteNames {
   static const String loginPage = 'login';
   static const String signUpPage = 'signup';
   static const String setPassword = 'set_password';
-  static const String doctorsPage = 'doctors';
-  static const String doctorInfoPage = 'doctor_info';
+  static const String teachersPage = 'teachers';
+  static const String teacherInfoPage = 'teacher_info';
   static const String ratingPage = 'ratings';
   static const String homePage = 'home';
   static const String wishlistPage = 'wishlist';
   static const String appointmentsPage = 'appointments';
-  static const String scheduleDoctorPage = 'schedule_doctor';
+  static const String scheduleTeacherPage = 'schedule_teacher';
   static const String scheduleFormPage = 'schedule_form';
   static const String appointmentDetailsPage = 'appointment_details';
   static const String cancelAppointmentPage = 'cancel_appointment';

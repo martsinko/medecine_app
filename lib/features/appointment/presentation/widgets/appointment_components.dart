@@ -61,7 +61,13 @@ class ScheduleFlowHeader extends StatelessWidget {
       children: [
         InkWell(
           borderRadius: BorderRadius.circular(999),
-          onTap: () => context.pop(),
+          onTap: () {
+            if (Navigator.of(context).canPop()) {
+              context.pop();
+              return;
+            }
+            context.goNamed(AppRouteNames.teachersPage);
+          },
           child: Padding(
             padding: const EdgeInsets.all(8),
             child: Icon(

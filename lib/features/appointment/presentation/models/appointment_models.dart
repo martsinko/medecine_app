@@ -126,11 +126,15 @@ class ScheduleDayOption {
   final int dayNumber;
   final String weekday;
   final String fullLabel;
+  final int? month;
+  final int? year;
 
   const ScheduleDayOption({
     required this.dayNumber,
     required this.weekday,
     required this.fullLabel,
+    this.month,
+    this.year,
   });
 
   factory ScheduleDayOption.fromIsoDate(String isoDate) {
@@ -140,6 +144,8 @@ class ScheduleDayOption {
       weekday: _scheduleWeekdayFormat.format(date).toUpperCase(),
       fullLabel:
           '${_scheduleMonthDayFormat.format(date)}, ${_scheduleYearFormat.format(date)}',
+      month: date.month,
+      year: date.year,
     );
   }
 }
@@ -245,34 +251,66 @@ List<String> buildScheduleTimes(List<String> timeSlots) {
 }
 
 String scheduleMonthLabel(List<String> availableDates) {
-  if (availableDates.isEmpty) {
-    return 'Month';
-  }
-
-  return _scheduleMonthFormat.format(
-    _scheduleIsoDateFormat.parse(availableDates.first),
-  );
+  return _scheduleMonthFormat.format(baseScheduleMonth(availableDates));
 }
 
-Set<int> availableCalendarDayNumbers(List<String> availableDates) {
-  return {
-    for (final isoDate in availableDates)
-      _scheduleIsoDateFormat.parse(isoDate).day,
-  };
-}
-
-List<int?> buildMonthCalendarGrid(List<String> availableDates) {
+DateTime baseScheduleMonth(List<String> availableDates) {
   if (availableDates.isEmpty) {
-    return List<int?>.generate(31, (index) => index + 1);
+    final now = DateTime.now();
+    return DateTime(now.year, now.month);
   }
 
   final firstDate = _scheduleIsoDateFormat.parse(availableDates.first);
-  final firstDayOfMonth = DateTime(firstDate.year, firstDate.month, 1);
+  return DateTime(firstDate.year, firstDate.month);
+}
+
+DateTime displayedScheduleMonth(List<String> availableDates, int monthOffset) {
+  final baseMonth = baseScheduleMonth(availableDates);
+  return DateTime(baseMonth.year, baseMonth.month + monthOffset);
+}
+
+String scheduleMonthLabelFor(DateTime month) {
+  return _scheduleMonthFormat.format(month);
+}
+
+Set<int> availableCalendarDayNumbers(
+  List<String> availableDates, {
+  DateTime? month,
+}) {
+  return {
+    for (final isoDate in availableDates)
+      if (month == null ||
+          (_scheduleIsoDateFormat.parse(isoDate).year == month.year &&
+              _scheduleIsoDateFormat.parse(isoDate).month == month.month))
+        _scheduleIsoDateFormat.parse(isoDate).day,
+  };
+}
+
+List<int?> buildMonthCalendarGridFor(DateTime month) {
+  final firstDayOfMonth = DateTime(month.year, month.month, 1);
   final leadingEmptyDays = firstDayOfMonth.weekday - DateTime.monday;
-  final daysInMonth = DateTime(firstDate.year, firstDate.month + 1, 0).day;
+  final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
 
   return [
     for (int i = 0; i < leadingEmptyDays; i++) null,
     for (int day = 1; day <= daysInMonth; day++) day,
   ];
+}
+
+List<int?> buildMonthCalendarGrid(List<String> availableDates) {
+  return buildMonthCalendarGridFor(baseScheduleMonth(availableDates));
+}
+
+bool isSelectedScheduleDay({
+  required ScheduleDayOption selectedDay,
+  required int? calendarDay,
+  required DateTime displayedMonth,
+}) {
+  if (calendarDay == null) {
+    return false;
+  }
+
+  return selectedDay.dayNumber == calendarDay &&
+      selectedDay.month == displayedMonth.month &&
+      selectedDay.year == displayedMonth.year;
 }

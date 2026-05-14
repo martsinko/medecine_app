@@ -8,7 +8,9 @@ import 'package:medicity_app/shared/widgets/custom_textfield.dart';
 import 'package:medicity_app/features/auth/presentation/providers/auth_provider.dart';
 
 class SetPasswordPage extends ConsumerStatefulWidget {
-  const SetPasswordPage({super.key});
+  final bool isPasswordManager;
+
+  const SetPasswordPage({super.key, this.isPasswordManager = false});
 
   @override
   ConsumerState<SetPasswordPage> createState() => _SetPasswordPageState();
@@ -30,12 +32,14 @@ class _SetPasswordPageState extends ConsumerState<SetPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isFromSettings = ModalRoute.of(context)?.settings.name == 'set_password';
-    
+    final isPasswordManager = widget.isPasswordManager;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppbar(
-        title: isFromSettings ? 'Password Manager' : AppString.setPasswordTitle,
+        title: isPasswordManager
+            ? 'Password Manager'
+            : AppString.setPasswordTitle,
         onBackPressed: () => context.pop(),
       ),
       body: SafeArea(
@@ -45,11 +49,8 @@ class _SetPasswordPageState extends ConsumerState<SetPasswordPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 12),
-              if (isFromSettings) ...[
-                Text(
-                  'Change your password',
-                  style: AppStyles.leagueSpartan16,
-                ),
+              if (isPasswordManager) ...[
+                Text('Change your password', style: AppStyles.leagueSpartan16),
                 const SizedBox(height: 8),
                 Text(
                   'Enter your current password and create a new one',
@@ -62,7 +63,7 @@ class _SetPasswordPageState extends ConsumerState<SetPasswordPage> {
                 ),
               ],
               const SizedBox(height: 32),
-              if (isFromSettings) ...[
+              if (isPasswordManager) ...[
                 CustomTextField(
                   controller: _currentPasswordController,
                   hintText: 'Current password',
@@ -90,8 +91,11 @@ class _SetPasswordPageState extends ConsumerState<SetPasswordPage> {
                 child: _isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : AppButton(
-                        title: isFromSettings ? 'Update Password' : AppString.createNewPassword,
-                        onPressed: () => _handlePasswordChange(context, isFromSettings),
+                        title: isPasswordManager
+                            ? 'Update Password'
+                            : AppString.createNewPassword,
+                        onPressed: () =>
+                            _handlePasswordChange(context, isPasswordManager),
                       ),
               ),
             ],
@@ -101,10 +105,18 @@ class _SetPasswordPageState extends ConsumerState<SetPasswordPage> {
     );
   }
 
-  Future<void> _handlePasswordChange(BuildContext context, bool isFromSettings) async {
+  Future<void> _handlePasswordChange(
+    BuildContext context,
+    bool isPasswordManager,
+  ) async {
     final current = _currentPasswordController.text.trim();
     final newPass = _newPasswordController.text.trim();
     final confirm = _confirmPasswordController.text.trim();
+
+    if (isPasswordManager && current.isEmpty) {
+      _showSnackBar(context, 'Please enter your current password');
+      return;
+    }
 
     if (newPass.isEmpty || confirm.isEmpty) {
       _showSnackBar(context, 'Please fill in all password fields');
@@ -124,16 +136,20 @@ class _SetPasswordPageState extends ConsumerState<SetPasswordPage> {
     setState(() => _isLoading = true);
 
     try {
-      if (isFromSettings && current.isNotEmpty) {
-        await ref.read(authActionProvider.notifier).changePassword(current, newPass);
-      } else if (!isFromSettings) {
+      if (isPasswordManager) {
+        await ref
+            .read(authActionProvider.notifier)
+            .changePassword(current, newPass);
+      } else {
         await Future.delayed(const Duration(milliseconds: 500));
       }
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(isFromSettings ? 'Password updated!' : 'Password created!'),
+            content: Text(
+              isPasswordManager ? 'Password updated!' : 'Password created!',
+            ),
             backgroundColor: Colors.green,
           ),
         );

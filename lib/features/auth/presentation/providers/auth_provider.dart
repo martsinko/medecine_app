@@ -49,20 +49,37 @@ class AuthActionNotifier extends StateNotifier<AsyncValue<void>> {
     );
   }
 
-  Future<void> signInWithGoogle() async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(_repository.signInWithGoogle);
-  }
+  // Social auth is temporarily disabled until Google/Facebook native
+  // configuration is ready.
+  // Future<void> signInWithGoogle() async {
+  //   state = const AsyncLoading();
+  //   state = await AsyncValue.guard(_repository.signInWithGoogle);
+  // }
+  //
+  // Future<void> signInWithFacebook() async {
+  //   state = const AsyncLoading();
+  //   state = await AsyncValue.guard(_repository.signInWithFacebook);
+  // }
 
   Future<void> signOut() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(_repository.signOut);
   }
 
-  Future<void> changePassword(String currentPassword, String newPassword) async {
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(
       () => _repository.changePassword(currentPassword, newPassword),
+    );
+  }
+
+  Future<void> deleteAccount({String? password}) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => _repository.deleteAccount(password: password),
     );
   }
 }

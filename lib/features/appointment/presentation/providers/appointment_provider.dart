@@ -25,15 +25,20 @@ final appointmentActionProvider =
     });
 
 final unavailableTimeSlotsProvider =
-    FutureProvider.family<List<String>, ({String doctorId, String dateLabel})>((ref, params) async {
+    FutureProvider.family<List<String>, ({String doctorId, String dateLabel})>((
+      ref,
+      params,
+    ) async {
       final userId = ref.read(currentUserIdProvider);
       if (userId == null) {
         return [];
       }
-      return ref.read(appointmentRepositoryProvider).getUnavailableTimeSlots(
-        doctorId: params.doctorId,
-        dateLabel: params.dateLabel,
-      );
+      return ref
+          .read(appointmentRepositoryProvider)
+          .getUnavailableTimeSlots(
+            doctorId: params.doctorId,
+            dateLabel: params.dateLabel,
+          );
     });
 
 final scheduleDraftProvider =
@@ -104,15 +109,19 @@ class AppointmentActionNotifier extends StateNotifier<AsyncValue<void>> {
       return appointmentId;
     }
 
-    final hasConflict = await _ref.read(appointmentRepositoryProvider).hasConflictBooking(
-      userId: userId,
-      doctorId: draft.doctorId,
-      dateLabel: draft.selectedDay.fullLabel,
-      timeLabel: draft.selectedTime,
-    );
+    final hasConflict = await _ref
+        .read(appointmentRepositoryProvider)
+        .hasConflictBooking(
+          userId: userId,
+          doctorId: draft.doctorId,
+          dateLabel: draft.selectedDay.fullLabel,
+          timeLabel: draft.selectedTime,
+        );
     if (hasConflict) {
       state = AsyncError(
-        StateError('This time slot is already booked. Please select another time.'),
+        StateError(
+          'This time slot is already booked. Please select another time.',
+        ),
         StackTrace.current,
       );
       return appointmentId;
@@ -160,6 +169,14 @@ class ScheduleDraftNotifier extends StateNotifier<ScheduleDraft> {
 
   void selectMonth(int index) {
     state = state.copyWith(selectedMonthIndex: index);
+  }
+
+  void previousMonth() {
+    state = state.copyWith(selectedMonthIndex: state.selectedMonthIndex - 1);
+  }
+
+  void nextMonth() {
+    state = state.copyWith(selectedMonthIndex: state.selectedMonthIndex + 1);
   }
 
   void selectCalendarDay(int dayNumber) {

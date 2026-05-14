@@ -46,7 +46,7 @@ const List<FaqArticle> faqArticles = [
   FaqArticle(
     title: 'Can I save favorite teachers?',
     body:
-        'Yes. Tap the favorite icon on a teacher card or in teacher details. Saved teachers appear in the Favorite section together with saved services.',
+        'Yes. Tap the favorite icon on a teacher card or in teacher details. Saved teachers appear in the Favorite section together with saved programming services.',
   ),
   FaqArticle(
     title: 'How do notifications work?',

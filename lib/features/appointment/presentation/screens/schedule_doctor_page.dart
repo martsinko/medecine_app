@@ -30,16 +30,19 @@ class ScheduleDoctorPage extends ConsumerWidget {
             final dayOptions = buildScheduleDayOptions(
               teacher.schedule.availableDates,
             );
+            final displayedMonth = displayedScheduleMonth(
+              teacher.schedule.availableDates,
+              draft.selectedMonthIndex,
+            );
             final availableDays = availableCalendarDayNumbers(
               teacher.schedule.availableDates,
+              month: displayedMonth,
             );
-            final calendarDays = buildMonthCalendarGrid(
-              teacher.schedule.availableDates,
-            );
+            final calendarDays = buildMonthCalendarGridFor(displayedMonth);
 
             if (dayOptions.isNotEmpty &&
                 !dayOptions.any(
-                  (option) => option.dayNumber == draft.selectedCalendarDay,
+                  (option) => option.fullLabel == draft.selectedDay.fullLabel,
                 )) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 ref
@@ -60,7 +63,7 @@ class ScheduleDoctorPage extends ConsumerWidget {
                         title: 'Schedule',
                         onTitleTap: () => context.goNamed(
                           AppRouteNames.scheduleFormPage,
-                          pathParameters: {'doctorId': teacher.id},
+                          pathParameters: {'teacherId': teacher.id},
                         ),
                       ),
                       const SizedBox(height: 14),
@@ -202,14 +205,27 @@ class ScheduleDoctorPage extends ConsumerWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
-                                  Icons.chevron_left_rounded,
-                                  color: AppColors.welcomeBlue,
+                                InkWell(
+                                  borderRadius: BorderRadius.circular(999),
+                                  onTap: () => ref
+                                      .read(
+                                        scheduleDraftProvider(
+                                          doctorId,
+                                        ).notifier,
+                                      )
+                                      .previousMonth(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(4),
+                                    child: Icon(
+                                      Icons.chevron_left_rounded,
+                                      color: AppColors.welcomeBlue,
+                                    ),
+                                  ),
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
-                                  scheduleMonthLabel(
-                                    teacher.schedule.availableDates,
+                                  scheduleMonthLabelFor(
+                                    displayedMonth,
                                   ).toUpperCase(),
                                   style: AppStyles.leagueSpartan16.copyWith(
                                     color: AppColors.welcomeBlue,
@@ -217,9 +233,22 @@ class ScheduleDoctorPage extends ConsumerWidget {
                                   ),
                                 ),
                                 const SizedBox(width: 12),
-                                Icon(
-                                  Icons.chevron_right_rounded,
-                                  color: AppColors.welcomeBlue,
+                                InkWell(
+                                  borderRadius: BorderRadius.circular(999),
+                                  onTap: () => ref
+                                      .read(
+                                        scheduleDraftProvider(
+                                          doctorId,
+                                        ).notifier,
+                                      )
+                                      .nextMonth(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(4),
+                                    child: Icon(
+                                      Icons.chevron_right_rounded,
+                                      color: AppColors.welcomeBlue,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -254,8 +283,11 @@ class ScheduleDoctorPage extends ConsumerWidget {
                                     ),
                                 itemBuilder: (context, index) {
                                   final day = calendarDays[index];
-                                  final selected =
-                                      day == draft.selectedCalendarDay;
+                                  final selected = isSelectedScheduleDay(
+                                    selectedDay: draft.selectedDay,
+                                    calendarDay: day,
+                                    displayedMonth: displayedMonth,
+                                  );
                                   final enabled =
                                       day != null &&
                                       availableDays.contains(day);
@@ -266,11 +298,15 @@ class ScheduleDoctorPage extends ConsumerWidget {
                                         ? null
                                         : () {
                                             final matchedOption = dayOptions
-                                                .where(
+                                                .firstWhere(
                                                   (option) =>
-                                                      option.dayNumber == day,
-                                                )
-                                                .first;
+                                                      option.dayNumber == day &&
+                                                      option.month ==
+                                                          displayedMonth
+                                                              .month &&
+                                                      option.year ==
+                                                          displayedMonth.year,
+                                                );
                                             ref
                                                 .read(
                                                   scheduleDraftProvider(
@@ -279,11 +315,11 @@ class ScheduleDoctorPage extends ConsumerWidget {
                                                 )
                                                 .selectWeekDay(matchedOption);
                                             context.goNamed(
-                                              AppRouteNames.scheduleFormPage,
-                                              pathParameters: {
-                                                'doctorId': teacher.id,
-                                              },
-                                            );
+                                          AppRouteNames.scheduleFormPage,
+                                          pathParameters: {
+                                            'teacherId': teacher.id,
+                                          },
+                                        );
                                           },
                                     child: Container(
                                       decoration: BoxDecoration(

@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medicity_app/core/firebase/firebase_providers.dart';
 import 'package:medicity_app/features/home/data/teacher_repository.dart';
-import 'package:medicity_app/features/home/presentation/data/doctors_mock.dart';
+import 'package:medicity_app/features/home/presentation/data/teachers_mock.dart';
 import 'package:medicity_app/features/home/presentation/models/doctor_profile.dart';
 import 'package:medicity_app/features/profile/presentation/providers/profile_provider.dart';
 
@@ -13,7 +13,7 @@ final rawTeachersProvider = StreamProvider<List<DoctorProfile>>((ref) {
   final stream = ref.watch(teacherRepositoryProvider).watchTeachers();
   return stream.map((teachers) {
     if (teachers.isEmpty) {
-      return _addMockScheduleData(doctorsMock);
+      return _addMockScheduleData(teachersMock);
     }
     return teachers;
   });

@@ -14,9 +14,8 @@ class WeekCalendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final start = selectedDate.subtract(
-      Duration(days: selectedDate.weekday - 1),
-    );
+    final now = DateTime.now();
+    final start = DateTime(now.year, now.month, now.day);
 
     return SizedBox(
       height: 82,

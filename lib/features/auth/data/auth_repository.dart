@@ -49,43 +49,30 @@ class AuthRepository {
     return credential;
   }
 
-  Future<UserCredential> signInWithGoogle() async {
-    try {
-      final googleUser = await googleSignIn.signIn();
-      if (googleUser == null) {
-        throw FirebaseAuthException(
-          code: 'google_sign_in_cancelled',
-          message: 'Google sign-in was cancelled.',
-        );
-      }
+  // Social auth is temporarily disabled until Google/Facebook native
+  // configuration is ready.
+  // Future<UserCredential> signInWithGoogle() async { ... }
+  // Future<UserCredential> signInWithFacebook() async { ... }
 
-      final googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-      final userCredential = await auth.signInWithCredential(credential);
-      final user = userCredential.user!;
-
-      await _createOrMergeUserProfile(
-        uid: user.uid,
-        email: user.email ?? googleUser.email,
-        fullName: user.displayName ?? googleUser.displayName ?? '',
-        phoneNumber: user.phoneNumber ?? '',
-        dateOfBirth: '',
-        photoUrl: user.photoURL ?? '',
-      );
-
-return userCredential;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<void> changePassword(String currentPassword, String newPassword) async {
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
     final user = auth.currentUser;
     if (user == null) {
       throw Exception('No user logged in');
+    }
+    if (!_hasProvider(user, 'password')) {
+      throw FirebaseAuthException(
+        code: 'password-provider-required',
+        message: 'This account is not using email and password authentication.',
+      );
+    }
+    if (user.email == null) {
+      throw FirebaseAuthException(
+        code: 'missing-email',
+        message: 'This account does not have an email address.',
+      );
     }
 
     final credential = EmailAuthProvider.credential(
@@ -97,11 +84,83 @@ return userCredential;
     await user.updatePassword(newPassword);
   }
 
+  Future<void> deleteAccount({String? password}) async {
+    final user = auth.currentUser;
+    if (user == null) {
+      throw Exception('No user logged in');
+    }
+
+    await _reauthenticateForSensitiveAction(user, password: password);
+    await _deleteUserData(user.uid);
+    await user.delete();
+    await googleSignIn.signOut();
+  }
+
   Future<void> signOut() async {
-    await Future.wait([
-      auth.signOut(),
-      googleSignIn.signOut(),
-    ]);
+    await Future.wait([auth.signOut(), googleSignIn.signOut()]);
+  }
+
+  Future<void> _reauthenticateForSensitiveAction(
+    User user, {
+    String? password,
+  }) async {
+    if (_hasProvider(user, 'password')) {
+      if (password == null || password.isEmpty) {
+        throw FirebaseAuthException(
+          code: 'missing-password',
+          message: 'Please enter your current password.',
+        );
+      }
+      if (user.email == null) {
+        throw FirebaseAuthException(
+          code: 'missing-email',
+          message: 'This account does not have an email address.',
+        );
+      }
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: password,
+      );
+      await user.reauthenticateWithCredential(credential);
+      return;
+    }
+
+    if (_hasProvider(user, 'google.com')) {
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        throw FirebaseAuthException(
+          code: 'google_reauth_cancelled',
+          message: 'Google reauthentication was cancelled.',
+        );
+      }
+      final googleAuth = await googleUser.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      await user.reauthenticateWithCredential(credential);
+      return;
+    }
+
+    throw FirebaseAuthException(
+      code: 'unsupported-auth-provider',
+      message: 'This account provider is not supported for this action.',
+    );
+  }
+
+  Future<void> _deleteUserData(String uid) async {
+    final batch = firestore.batch();
+    final userRef = firestore.collection('users').doc(uid);
+    final appointments = await firestore
+        .collection('appointments')
+        .where('userId', isEqualTo: uid)
+        .get();
+
+    for (final doc in appointments.docs) {
+      batch.delete(doc.reference);
+    }
+    batch.delete(userRef);
+    await batch.commit();
   }
 
   Future<void> _createOrMergeUserProfile({
@@ -136,5 +195,11 @@ return userCredential;
       ...data.toFirestore(),
       'createdAt': existing['createdAt'] ?? Timestamp.now(),
     }, SetOptions(merge: true));
+  }
+
+  bool _hasProvider(User user, String providerId) {
+    return user.providerData.any(
+      (provider) => provider.providerId == providerId,
+    );
   }
 }

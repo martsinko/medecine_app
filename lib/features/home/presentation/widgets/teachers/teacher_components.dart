@@ -5,28 +5,12 @@ import 'package:medicity_app/shared/widgets/adaptive_avatar.dart';
 
 import '../../models/doctor_profile.dart';
 
-enum DoctorsFilterHighlight { none, rating, favorite }
+enum TeachersFilterHighlight { none, rating, favorite }
 
-enum SortOption { alphabetical, rating, favorite }
-
-class SortOptionState {
-  final SortOption sort;
-  final DoctorGender? gender;
-  
-  const SortOptionState({this.sort = SortOption.alphabetical, this.gender});
-  
-  SortOptionState copyWith({SortOption? sort, DoctorGender? gender, bool clearGender = false}) {
-    return SortOptionState(
-      sort: sort ?? this.sort,
-      gender: clearGender ? null : (gender ?? this.gender),
-    );
-  }
-}
-
-class DoctorsTopBar extends StatelessWidget {
+class TeachersTopBar extends StatelessWidget {
   final String title;
 
-  const DoctorsTopBar({super.key, required this.title});
+  const TeachersTopBar({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -59,23 +43,25 @@ class DoctorsTopBar extends StatelessWidget {
   }
 }
 
-class DoctorsFilterRow extends StatelessWidget {
-  final DoctorsFilterHighlight highlight;
+class TeachersFilterRow extends StatelessWidget {
+  final TeachersFilterHighlight highlight;
   final VoidCallback? onRatingTap;
   final VoidCallback? onFavoriteTap;
   final VoidCallback? onAZTap;
+  final bool azSelected;
   final bool showGenderFilters;
   final bool favoriteSelected;
   final DoctorGender? selectedGender;
   final VoidCallback? onFemaleTap;
   final VoidCallback? onMaleTap;
 
-  const DoctorsFilterRow({
+  const TeachersFilterRow({
     super.key,
-    this.highlight = DoctorsFilterHighlight.none,
+    this.highlight = TeachersFilterHighlight.none,
     this.onRatingTap,
     this.onFavoriteTap,
     this.onAZTap,
+    this.azSelected = false,
     this.showGenderFilters = false,
     this.favoriteSelected = false,
     this.selectedGender,
@@ -97,11 +83,15 @@ class DoctorsFilterRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          _LabelFilterChip(label: 'A - Z', selected: false, onTap: onAZTap),
+          _LabelFilterChip(
+            label: 'A - Z',
+            selected: azSelected,
+            onTap: onAZTap,
+          ),
           const SizedBox(width: 8),
           _IconFilterChip(
             icon: Icons.star_rounded,
-            selected: highlight == DoctorsFilterHighlight.rating,
+            selected: highlight == TeachersFilterHighlight.rating,
             onTap: onRatingTap,
           ),
           const SizedBox(width: 6),
@@ -109,7 +99,7 @@ class DoctorsFilterRow extends StatelessWidget {
             icon: Icons.favorite_rounded,
             selected:
                 favoriteSelected ||
-                highlight == DoctorsFilterHighlight.favorite,
+                highlight == TeachersFilterHighlight.favorite,
             onTap: onFavoriteTap,
           ),
           const SizedBox(width: 6),
@@ -128,7 +118,7 @@ class DoctorsFilterRow extends StatelessWidget {
           ] else ...[
             const _IconFilterChip(icon: Icons.location_on_rounded),
             const SizedBox(width: 6),
-            const _IconFilterChip(icon: Icons.medical_services_rounded),
+            const _IconFilterChip(icon: Icons.code_rounded),
           ],
         ],
       ),
@@ -136,14 +126,14 @@ class DoctorsFilterRow extends StatelessWidget {
   }
 }
 
-class DoctorCompactCard extends StatelessWidget {
+class TeacherCompactCard extends StatelessWidget {
   final DoctorProfile doctor;
   final VoidCallback? onInfoTap;
   final VoidCallback? onCalendarTap;
   final VoidCallback? onDetailsTap;
   final VoidCallback? onFavoriteTap;
 
-  const DoctorCompactCard({
+  const TeacherCompactCard({
     super.key,
     required this.doctor,
     this.onInfoTap,

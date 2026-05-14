@@ -79,8 +79,8 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
                       ScheduleFlowHeader(
                         title: teacher.name,
                         onTitleTap: () => context.goNamed(
-                          AppRouteNames.scheduleDoctorPage,
-                          pathParameters: {'doctorId': teacher.id},
+                          AppRouteNames.scheduleTeacherPage,
+                          pathParameters: {'teacherId': teacher.id},
                         ),
                       ),
                       const SizedBox(height: 10),

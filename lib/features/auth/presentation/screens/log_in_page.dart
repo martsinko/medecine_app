@@ -7,7 +7,6 @@ import '../../../../core/constants/app_index.dart';
 import '../../../../shared/widgets/custom_appbar.dart';
 import '../../../../shared/widgets/custom_textfield.dart';
 import '../providers/auth_provider.dart';
-import '../widgets/sign_up_buttons.dart';
 
 class LogInPage extends ConsumerStatefulWidget {
   final bool isFromWelcome;
@@ -102,7 +101,9 @@ class _LogInPageState extends ConsumerState<LogInPage> {
                   onPressed: authAction.isLoading
                       ? () {}
                       : () async {
-                          await ref.read(authActionProvider.notifier).signInWithEmail(
+                          await ref
+                              .read(authActionProvider.notifier)
+                              .signInWithEmail(
                                 email: _emailController.text.trim(),
                                 password: _passwordController.text.trim(),
                               );
@@ -123,16 +124,8 @@ class _LogInPageState extends ConsumerState<LogInPage> {
                 const SizedBox(height: 16),
                 const Center(child: CircularProgressIndicator()),
               ],
-              const SizedBox(height: 16),
-              Center(
-                child: Text(
-                  AppString.orSignUpText,
-                  textAlign: TextAlign.center,
-                  style: AppStyles.leagueSpartan12W300,
-                ),
-              ),
-              const SizedBox(height: 12),
-              const SingUpButtons(),
+              // Social auth is temporarily disabled until native
+              // Google/Facebook configuration is ready.
               const SizedBox(height: 38),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

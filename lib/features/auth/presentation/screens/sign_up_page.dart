@@ -8,7 +8,6 @@ import 'package:medicity_app/shared/widgets/custom_textfield.dart';
 import '../../../../core/constants/app_index.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../providers/auth_provider.dart';
-import '../widgets/sign_up_buttons.dart';
 
 class SignUpPage extends ConsumerStatefulWidget {
   final bool isFromWelcome;
@@ -129,7 +128,9 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                     onPressed: authAction.isLoading
                         ? () {}
                         : () async {
-                            await ref.read(authActionProvider.notifier).signUpWithEmail(
+                            await ref
+                                .read(authActionProvider.notifier)
+                                .signUpWithEmail(
                                   fullName: _fullNameController.text.trim(),
                                   email: _emailController.text.trim(),
                                   password: _passwordController.text.trim(),
@@ -151,14 +152,8 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                 ),
                 if (authAction.isLoading)
                   const Center(child: CircularProgressIndicator()),
-                Center(
-                  child: Text(
-                    AppString.orSignUpText,
-                    textAlign: TextAlign.center,
-                    style: AppStyles.leagueSpartan12W300,
-                  ),
-                ),
-                const SingUpButtons(),
+                // Social auth is temporarily disabled until native
+                // Google/Facebook configuration is ready.
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

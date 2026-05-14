@@ -210,12 +210,12 @@ class _AppointmentCard extends ConsumerWidget {
                         Expanded(
                           child: AppointmentActionButton(
                             label: 'Re-Book',
-                            filled: false,
-                            onTap: () => context.goNamed(
-                              AppRouteNames.scheduleDoctorPage,
-                              pathParameters: {'doctorId': doctor.id},
-                            ),
-                          ),
+                        filled: false,
+                        onTap: () => context.goNamed(
+                          AppRouteNames.scheduleTeacherPage,
+                          pathParameters: {'teacherId': doctor.id},
+                        ),
+                      ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(

@@ -59,8 +59,8 @@ class HeaderWidget extends ConsumerWidget {
             children: [
               HeaderButton(
                 imagePath: AppIcons.doctorsIcon,
-                title: AppString.doctorsText,
-                onTap: () => context.pushNamed(AppRouteNames.doctorsPage),
+                title: AppString.teachersText,
+                onTap: () => context.pushNamed(AppRouteNames.teachersPage),
               ),
               const SizedBox(width: 12),
               HeaderButton(
