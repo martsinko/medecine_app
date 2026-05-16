@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 
 import '../data/profile_mock.dart';
 import '../models/profile_models.dart';
@@ -51,7 +52,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           child: Column(
             children: [
               ProfileTopBar(
-                title: 'Profile',
+                title: context.tr('profile'),
                 trailing: InkWell(
                   borderRadius: BorderRadius.circular(999),
                   onTap: () => context.pushNamed(AppRouteNames.settingsPage),
@@ -71,30 +72,35 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                 ),
               ),
               const SizedBox(height: 16),
-              Center(child: ProfileAvatar(imagePath: profile.avatarPath)),
+              Center(
+                child: ProfileAvatar(
+                  imagePath: profile.avatarPath,
+                  onActionTap: () => _pickStudentPhoto(context, profile),
+                ),
+              ),
               const SizedBox(height: 32),
               Expanded(
                 child: ListView(
                   children: [
                     ProfileFormField(
-                      label: 'Full Name',
+                      label: context.tr('fullName'),
                       controller: _fullNameController,
                     ),
                     const SizedBox(height: 22),
                     ProfileFormField(
-                      label: 'Phone Number',
+                      label: context.tr('phoneNumber'),
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
                     ),
                     const SizedBox(height: 22),
                     ProfileFormField(
-                      label: 'Email',
+                      label: context.tr('email'),
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                     ),
                     const SizedBox(height: 22),
                     ProfileFormField(
-                      label: 'Date Of Birth',
+                      label: context.tr('dateOfBirthDisplay'),
                       controller: _dateController,
                       hintText: 'DD / MM / YYYY',
                     ),
@@ -104,7 +110,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
               SizedBox(
                 width: 238,
                 child: ProfilePrimaryButton(
-                  label: 'Update Profile',
+                  label: context.tr('updateProfile'),
                   onTap: () {
                     ref
                         .read(profileActionProvider.notifier)
@@ -122,7 +128,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                           ),
                         );
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Profile updated.')),
+                      SnackBar(content: Text(context.tr('profileUpdated'))),
                     );
                     context.pop();
                   },
@@ -133,5 +139,35 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _pickStudentPhoto(
+    BuildContext context,
+    ProfileData profile,
+  ) async {
+    final updated = await ref
+        .read(profileActionProvider.notifier)
+        .pickAndUpdateAvatar(profile);
+    final state = ref.read(profileActionProvider);
+    if (!context.mounted) {
+      return;
+    }
+
+    if (state.hasError) {
+      state.whenOrNull(
+        error: (error, _) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(context.trError(error))));
+        },
+      );
+      return;
+    }
+
+    if (updated) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr('profilePhotoUpdated'))),
+      );
+    }
   }
 }

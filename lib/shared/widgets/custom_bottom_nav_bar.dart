@@ -21,6 +21,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
         currentPath.startsWith(AppRoutePaths.appointmentsPage) ||
         currentPath.startsWith('/schedule');
     return Scaffold(
+      backgroundColor: Colors.white,
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(
           bottom: 34,

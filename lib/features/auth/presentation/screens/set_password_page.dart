@@ -6,6 +6,7 @@ import 'package:medicity_app/shared/widgets/app_button.dart';
 import 'package:medicity_app/shared/widgets/custom_appbar.dart';
 import 'package:medicity_app/shared/widgets/custom_textfield.dart';
 import 'package:medicity_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 
 class SetPasswordPage extends ConsumerStatefulWidget {
   final bool isPasswordManager;
@@ -38,8 +39,8 @@ class _SetPasswordPageState extends ConsumerState<SetPasswordPage> {
       backgroundColor: Colors.white,
       appBar: CustomAppbar(
         title: isPasswordManager
-            ? 'Password Manager'
-            : AppString.setPasswordTitle,
+            ? context.tr('passwordManager')
+            : context.tr('setPassword'),
         onBackPressed: () => context.pop(),
       ),
       body: SafeArea(
@@ -50,15 +51,18 @@ class _SetPasswordPageState extends ConsumerState<SetPasswordPage> {
             children: [
               const SizedBox(height: 12),
               if (isPasswordManager) ...[
-                Text('Change your password', style: AppStyles.leagueSpartan16),
+                Text(
+                  context.tr('changePassword'),
+                  style: AppStyles.leagueSpartan16,
+                ),
                 const SizedBox(height: 8),
                 Text(
-                  'Enter your current password and create a new one',
+                  context.tr('changePasswordDescription'),
                   style: AppStyles.leagueSpartan12W300,
                 ),
               ] else ...[
                 Text(
-                  AppString.welcomeLatinText,
+                  context.tr('welcomeDescription'),
                   style: AppStyles.leagueSpartan12W300,
                 ),
               ],
@@ -66,23 +70,23 @@ class _SetPasswordPageState extends ConsumerState<SetPasswordPage> {
               if (isPasswordManager) ...[
                 CustomTextField(
                   controller: _currentPasswordController,
-                  hintText: 'Current password',
-                  labelText: 'Current Password',
+                  hintText: context.tr('currentPassword'),
+                  labelText: context.tr('currentPassword'),
                   isPassword: true,
                 ),
                 const SizedBox(height: 20),
               ],
               CustomTextField(
                 controller: _newPasswordController,
-                hintText: AppString.hintPassword,
-                labelText: 'New Password',
+                hintText: context.tr('enterPassword'),
+                labelText: context.tr('newPassword'),
                 isPassword: true,
               ),
               const SizedBox(height: 20),
               CustomTextField(
                 controller: _confirmPasswordController,
-                hintText: AppString.hintPassword,
-                labelText: AppString.confirmPasswordTitle,
+                hintText: context.tr('enterPassword'),
+                labelText: context.tr('confirmPassword'),
                 isPassword: true,
               ),
               const SizedBox(height: 48),
@@ -92,8 +96,8 @@ class _SetPasswordPageState extends ConsumerState<SetPasswordPage> {
                     ? const Center(child: CircularProgressIndicator())
                     : AppButton(
                         title: isPasswordManager
-                            ? 'Update Password'
-                            : AppString.createNewPassword,
+                            ? context.tr('updatePassword')
+                            : context.tr('createNewPassword'),
                         onPressed: () =>
                             _handlePasswordChange(context, isPasswordManager),
                       ),
@@ -114,22 +118,22 @@ class _SetPasswordPageState extends ConsumerState<SetPasswordPage> {
     final confirm = _confirmPasswordController.text.trim();
 
     if (isPasswordManager && current.isEmpty) {
-      _showSnackBar(context, 'Please enter your current password');
+      _showSnackBar(context, context.tr('enterCurrentPassword'));
       return;
     }
 
     if (newPass.isEmpty || confirm.isEmpty) {
-      _showSnackBar(context, 'Please fill in all password fields');
+      _showSnackBar(context, context.tr('pleaseFillPasswordFields'));
       return;
     }
 
     if (newPass.length < 6) {
-      _showSnackBar(context, 'Password must be at least 6 characters');
+      _showSnackBar(context, context.tr('passwordTooShort'));
       return;
     }
 
     if (newPass != confirm) {
-      _showSnackBar(context, 'Passwords do not match');
+      _showSnackBar(context, context.tr('passwordsDoNotMatch'));
       return;
     }
 
@@ -148,7 +152,9 @@ class _SetPasswordPageState extends ConsumerState<SetPasswordPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              isPasswordManager ? 'Password updated!' : 'Password created!',
+              isPasswordManager
+                  ? context.tr('passwordUpdated')
+                  : context.tr('passwordCreated'),
             ),
             backgroundColor: Colors.green,
           ),
@@ -157,7 +163,7 @@ class _SetPasswordPageState extends ConsumerState<SetPasswordPage> {
       }
     } catch (e) {
       if (context.mounted) {
-        _showSnackBar(context, e.toString());
+        _showSnackBar(context, context.trError(e));
       }
     } finally {
       if (mounted) {

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
 import 'package:medicity_app/core/firebase/firebase_providers.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 import 'welcome_screen.dart';
 
 class SplashScreen extends ConsumerWidget {
@@ -27,13 +28,13 @@ class SplashScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                AppString.splashTitle,
+                context.tr('welcomeTitle'),
                 textAlign: TextAlign.center,
                 style: AppStyles.leagueSpartan48,
               ),
               const SizedBox(height: 17),
               Text(
-                AppString.splashSubtitle,
+                context.tr('welcomeSubtitle'),
                 style: AppStyles.leagueSpartan12W600,
               ),
             ],
@@ -60,8 +61,6 @@ class _RedirectToHome extends ConsumerWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.goNamed(AppRouteNames.homePage);
     });
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

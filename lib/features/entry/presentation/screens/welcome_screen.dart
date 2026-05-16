@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_index.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../shared/widgets/app_button.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -24,7 +25,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
               SizedBox(height: 14),
               Text(
-                AppString.welcomeTitle,
+                context.tr('welcomeTitle'),
                 textAlign: TextAlign.center,
                 style: AppStyles.leagueSpartan48.copyWith(
                   color: AppColors.welcomeBlue,
@@ -32,14 +33,14 @@ class WelcomeScreen extends StatelessWidget {
               ),
               SizedBox(height: 17),
               Text(
-                AppString.welcomeSubtitle,
+                context.tr('welcomeSubtitle'),
                 style: AppStyles.leagueSpartan12W600.copyWith(
                   color: AppColors.welcomeBlue,
                 ),
               ),
               SizedBox(height: 90),
               Text(
-                AppString.welcomeLatinText,
+                context.tr('welcomeDescription'),
                 textAlign: TextAlign.center,
                 style: AppStyles.leagueSpartan12W300,
               ),
@@ -49,7 +50,7 @@ class WelcomeScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     AppButton(
-                      title: AppString.logIn,
+                      title: context.tr('login'),
                       onPressed: () => context.pushNamed(
                         AppRouteNames.loginPage,
                         extra: true,
@@ -58,7 +59,7 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 12),
                     AppButton(
-                      title: AppString.signUp,
+                      title: context.tr('signUp'),
                       onPressed: () => context.pushNamed(
                         AppRouteNames.signUpPage,
                         extra: true,

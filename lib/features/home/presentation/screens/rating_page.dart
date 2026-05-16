@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 import 'package:medicity_app/shared/widgets/adaptive_avatar.dart';
 
 import '../models/doctor_profile.dart';
@@ -32,7 +33,7 @@ class RatingPage extends ConsumerWidget {
                     separatorBuilder: (_, index) => const SizedBox(height: 16),
                     itemBuilder: (context, index) {
                       if (index == 0) {
-                        return const TeachersTopBar(title: 'Rating');
+                        return TeachersTopBar(title: context.tr('rating'));
                       }
 
                       if (index == 1) {
@@ -55,9 +56,9 @@ class RatingPage extends ConsumerWidget {
           loading: () => const Scaffold(
             body: SafeArea(child: Center(child: CircularProgressIndicator())),
           ),
-          error: (error, stackTrace) => const Scaffold(
+          error: (error, stackTrace) => Scaffold(
             body: SafeArea(
-              child: Center(child: Text('Failed to load ratings.')),
+              child: Center(child: Text(context.tr('failedLoadRatings'))),
             ),
           ),
         );
@@ -83,7 +84,7 @@ class _RatedDoctorCard extends ConsumerWidget {
             children: [
               MetricBadge(
                 icon: Icons.workspace_premium_outlined,
-                label: 'Professional Teacher',
+                label: context.tr('professionalTeacher'),
                 foregroundColor: AppColors.welcomeBlue,
               ),
               const Spacer(),
@@ -128,7 +129,7 @@ class _RatedDoctorCard extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        doctor.specialty,
+                        context.tr(doctor.specialty),
                         style: AppStyles.leagueSpartan12W300.copyWith(
                           fontSize: 13,
                         ),
@@ -143,7 +144,7 @@ class _RatedDoctorCard extends ConsumerWidget {
           Row(
             children: [
               PrimaryPillButton(
-                label: 'Info',
+                label: context.tr('info'),
                 onTap: () => context.goNamed(
                   AppRouteNames.teacherInfoPage,
                   pathParameters: {'teacherId': doctor.id},

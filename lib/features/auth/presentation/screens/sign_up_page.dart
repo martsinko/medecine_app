@@ -6,6 +6,7 @@ import 'package:medicity_app/shared/widgets/custom_appbar.dart';
 import 'package:medicity_app/shared/widgets/custom_textfield.dart';
 
 import '../../../../core/constants/app_index.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../shared/widgets/app_button.dart';
 import '../providers/auth_provider.dart';
 
@@ -52,7 +53,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppbar(
-        title: AppString.newAccount,
+        title: context.tr('newAccount'),
         onBackPressed: widget.isFromWelcome
             ? () => context.goNamed(AppRouteNames.welcomeScreen)
             : () => context.pop(),
@@ -66,32 +67,32 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
               children: [
                 const SizedBox(height: 8),
                 CustomTextField(
-                  hintText: 'Enter your full name',
-                  labelText: AppString.fullNameText,
+                  hintText: context.tr('enterFullName'),
+                  labelText: context.tr('fullName'),
                   controller: _fullNameController,
                 ),
                 CustomTextField(
-                  hintText: AppString.hintPassword,
-                  labelText: AppString.passwordTitle,
+                  hintText: context.tr('enterPassword'),
+                  labelText: context.tr('password'),
                   isPassword: true,
                   controller: _passwordController,
                 ),
                 CustomTextField(
                   hintText: 'example@example.com',
-                  labelText: AppString.emailText,
+                  labelText: context.tr('email'),
                   controller: _emailController,
                 ),
                 CustomTextField(
-                  hintText: 'Enter your phone number',
+                  hintText: context.tr('enterPhoneNumber'),
                   keyboardType: TextInputType.phone,
                   isPhone: true,
-                  labelText: AppString.phonemeNumberField,
+                  labelText: context.tr('mobileNumber'),
                   controller: _phoneController,
                 ),
                 CustomTextField(
                   hintText: 'DD/MM/YYYY',
                   isDate: true,
-                  labelText: AppString.dateOfBitrh,
+                  labelText: context.tr('dateOfBirth'),
                   controller: _dateController,
                 ),
                 RichText(
@@ -99,18 +100,18 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                   text: TextSpan(
                     style: AppStyles.leagueSpartan12W300,
                     children: [
-                      const TextSpan(text: AppString.termsUseText1),
+                      TextSpan(text: context.tr('byContinuing')),
                       TextSpan(
-                        text: AppString.termsUseText,
+                        text: '\n${context.tr('termsOfUse')}',
                         style: AppStyles.leagueSpartan12W300.copyWith(
                           color: AppColors.welcomeBlue,
                           fontWeight: FontWeight.w600,
                         ),
                         recognizer: TapGestureRecognizer()..onTap = () {},
                       ),
-                      const TextSpan(text: ' and '),
+                      TextSpan(text: ' ${context.tr('and')} '),
                       TextSpan(
-                        text: AppString.privacyPolicyText,
+                        text: context.tr('privacyPolicy'),
                         style: AppStyles.leagueSpartan12W300.copyWith(
                           color: AppColors.welcomeBlue,
                           fontWeight: FontWeight.w600,
@@ -124,7 +125,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 70),
                   child: AppButton(
-                    title: AppString.signUp,
+                    title: context.tr('signUp'),
                     onPressed: authAction.isLoading
                         ? () {}
                         : () async {
@@ -140,7 +141,9 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                             final state = ref.read(authActionProvider);
                             if (state.hasError && context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(state.error.toString())),
+                                SnackBar(
+                                  content: Text(context.trError(state.error!)),
+                                ),
                               );
                               return;
                             }
@@ -158,14 +161,14 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      AppString.alreadyHaveAccount,
+                      context.tr('alreadyHaveAccount'),
                       style: AppStyles.leagueSpartan12W300,
                     ),
                     const SizedBox(width: 4),
                     GestureDetector(
                       onTap: () => context.pushNamed(AppRouteNames.loginPage),
                       child: Text(
-                        AppString.logIn,
+                        context.tr('login'),
                         style: AppStyles.leagueSpartan12W600.copyWith(
                           color: AppColors.welcomeBlue,
                           fontWeight: FontWeight.w500,

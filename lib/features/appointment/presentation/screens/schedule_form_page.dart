@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 import 'package:medicity_app/features/home/presentation/providers/teacher_provider.dart';
 
 import '../models/appointment_models.dart';
@@ -63,9 +64,12 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
               timeOptions: timeOptions,
             );
 
-            final unavailableSlotsAsync = ref.watch(unavailableTimeSlotsProvider(
-              (doctorId: widget.doctorId, dateLabel: draft.selectedDay.fullLabel),
-            ));
+            final unavailableSlotsAsync = ref.watch(
+              unavailableTimeSlotsProvider((
+                doctorId: widget.doctorId,
+                dateLabel: draft.selectedDay.fullLabel,
+              )),
+            );
             final unavailableSlots = unavailableSlotsAsync.value ?? [];
 
             return Scaffold(
@@ -198,7 +202,7 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Available Time',
+                        context.tr('availableTime'),
                         style: AppStyles.leagueSpartan16.copyWith(
                           color: AppColors.welcomeBlue,
                           fontWeight: FontWeight.w600,
@@ -226,7 +230,7 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Patient Details',
+                        context.tr('patientDetails'),
                         style: AppStyles.leagueSpartan16.copyWith(
                           color: AppColors.welcomeBlue,
                           fontWeight: FontWeight.w600,
@@ -236,39 +240,39 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
                       Row(
                         children: [
                           _OutlinedChip(
-                            label: 'Yourself',
+                            label: context.tr('yourself'),
                             selected: draft.bookingForSelf,
                             onTap: () => notifier.setBookingForSelf(true),
                           ),
                           const SizedBox(width: 8),
                           _OutlinedChip(
-                            label: 'Another Person',
+                            label: context.tr('anotherPerson'),
                             selected: !draft.bookingForSelf,
                             onTap: () => notifier.setBookingForSelf(false),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
-                      const _FormLabel(label: 'Full Name'),
+                      _FormLabel(label: context.tr('fullName')),
                       const SizedBox(height: 6),
                       _ScheduleField(
                         controller: _nameController,
                         onChanged: notifier.updatePatientName,
                       ),
                       const SizedBox(height: 10),
-                      const _FormLabel(label: 'Age'),
+                      _FormLabel(label: context.tr('age')),
                       const SizedBox(height: 6),
                       _ScheduleField(
                         controller: _ageController,
                         onChanged: notifier.updatePatientAge,
                       ),
                       const SizedBox(height: 10),
-                      const _FormLabel(label: 'Gender'),
+                      _FormLabel(label: context.tr('gender')),
                       const SizedBox(height: 6),
                       Row(
                         children: [
                           _OutlinedChip(
-                            label: 'Male',
+                            label: context.tr('male'),
                             selected: draft.patientGender == PatientGender.male,
                             onTap: () => notifier.updatePatientGender(
                               PatientGender.male,
@@ -276,7 +280,7 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
                           ),
                           const SizedBox(width: 8),
                           _OutlinedChip(
-                            label: 'Female',
+                            label: context.tr('female'),
                             selected:
                                 draft.patientGender == PatientGender.female,
                             onTap: () => notifier.updatePatientGender(
@@ -285,7 +289,7 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
                           ),
                           const SizedBox(width: 8),
                           _OutlinedChip(
-                            label: 'Other',
+                            label: context.tr('other'),
                             selected:
                                 draft.patientGender == PatientGender.other,
                             onTap: () => notifier.updatePatientGender(
@@ -299,7 +303,7 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
                         color: AppColors.hintColor.withValues(alpha: 0.6),
                       ),
                       const SizedBox(height: 10),
-                      const _FormLabel(label: 'Describe your problem'),
+                      _FormLabel(label: context.tr('describeProblem')),
                       const SizedBox(height: 8),
                       Container(
                         height: 110,
@@ -313,7 +317,7 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
                           expands: true,
                           onChanged: notifier.updateProblemDescription,
                           decoration: InputDecoration(
-                            hintText: 'Enter Your Problem Here...',
+                            hintText: context.tr('enterProblem'),
                             hintStyle: AppStyles.leagueSpartan16.copyWith(
                               color: AppColors.hintColor,
                             ),
@@ -324,30 +328,39 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
                       ),
                       const SizedBox(height: 20),
                       AppointmentActionButton(
-                        label: 'Continue',
+                        label: context.tr('continue'),
                         onTap: () async {
                           final name = _nameController.text.trim();
                           final age = _ageController.text.trim();
                           if (name.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Please enter patient name'),
+                              SnackBar(
+                                content: Text(
+                                  context.tr('pleaseEnterPatientName'),
+                                ),
                               ),
                             );
                             return;
                           }
-                          if (age.isEmpty || int.tryParse(age) == null || int.parse(age) < 1 || int.parse(age) > 150) {
+                          if (age.isEmpty ||
+                              int.tryParse(age) == null ||
+                              int.parse(age) < 1 ||
+                              int.parse(age) > 150) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Please enter a valid age'),
+                              SnackBar(
+                                content: Text(
+                                  context.tr('pleaseEnterValidAge'),
+                                ),
                               ),
                             );
                             return;
                           }
                           if (draft.selectedTime.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Please select a time slot'),
+                              SnackBar(
+                                content: Text(
+                                  context.tr('pleaseSelectTimeSlot'),
+                                ),
                               ),
                             );
                             return;
@@ -370,7 +383,9 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
                           if (actionState.hasError && context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(actionState.error.toString()),
+                                content: Text(
+                                  context.trError(actionState.error!),
+                                ),
                               ),
                             );
                             return;
@@ -392,9 +407,9 @@ class _ScheduleFormPageState extends ConsumerState<ScheduleFormPage> {
           loading: () => const Scaffold(
             body: SafeArea(child: Center(child: CircularProgressIndicator())),
           ),
-          error: (error, stackTrace) => const Scaffold(
+          error: (error, stackTrace) => Scaffold(
             body: SafeArea(
-              child: Center(child: Text('Failed to load teacher.')),
+              child: Center(child: Text(context.tr('failedLoadTeacher'))),
             ),
           ),
         );
@@ -492,26 +507,23 @@ class _TimeSlotButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(999),
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 8,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.welcomeBlue
               : isDisabled
-                  ? AppColors.fillColor.withValues(alpha: 0.5)
-                  : AppColors.fillColor,
+              ? AppColors.fillColor.withValues(alpha: 0.5)
+              : AppColors.fillColor,
           borderRadius: BorderRadius.circular(999),
         ),
         child: Text(
-          isUnavailable ? '$time (booked)' : time,
+          isUnavailable ? '$time (${context.tr('booked')})' : time,
           style: AppStyles.leagueSpartan12W300.copyWith(
             color: isSelected
                 ? Colors.white
                 : isDisabled
-                    ? AppColors.hintColor.withValues(alpha: 0.5)
-                    : AppColors.hintColor,
+                ? AppColors.hintColor.withValues(alpha: 0.5)
+                : AppColors.hintColor,
             fontSize: 14,
             fontWeight: FontWeight.w500,
             decoration: isUnavailable ? TextDecoration.lineThrough : null,

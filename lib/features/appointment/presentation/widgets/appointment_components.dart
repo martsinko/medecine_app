@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 import 'package:medicity_app/features/home/presentation/models/doctor_profile.dart';
 import 'package:medicity_app/shared/widgets/adaptive_avatar.dart';
 
@@ -52,8 +53,20 @@ class AppointmentTopBar extends StatelessWidget {
 class ScheduleFlowHeader extends StatelessWidget {
   final String title;
   final VoidCallback? onTitleTap;
+  final VoidCallback? onSupportTap;
+  final VoidCallback? onHelpTap;
+  final VoidCallback? onFavoriteTap;
+  final bool favoriteSelected;
 
-  const ScheduleFlowHeader({super.key, required this.title, this.onTitleTap});
+  const ScheduleFlowHeader({
+    super.key,
+    required this.title,
+    this.onTitleTap,
+    this.onSupportTap,
+    this.onHelpTap,
+    this.onFavoriteTap,
+    this.favoriteSelected = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -97,11 +110,18 @@ class ScheduleFlowHeader extends StatelessWidget {
         ),
         const Spacer(),
 
-        const ScheduleHeaderIcon(icon: Icons.support_agent_outlined),
+        ScheduleHeaderIcon(
+          icon: Icons.support_agent_outlined,
+          onTap: onSupportTap,
+        ),
         const SizedBox(width: 6),
-        const ScheduleHeaderIcon(icon: Icons.question_mark_rounded),
+        ScheduleHeaderIcon(icon: Icons.question_mark_rounded, onTap: onHelpTap),
         const SizedBox(width: 6),
-        const ScheduleHeaderIcon(icon: Icons.favorite_rounded),
+        ScheduleHeaderIcon(
+          icon: Icons.favorite_rounded,
+          selected: favoriteSelected,
+          onTap: onFavoriteTap,
+        ),
       ],
     );
   }
@@ -109,19 +129,34 @@ class ScheduleFlowHeader extends StatelessWidget {
 
 class ScheduleHeaderIcon extends StatelessWidget {
   final IconData icon;
+  final VoidCallback? onTap;
+  final bool selected;
 
-  const ScheduleHeaderIcon({super.key, required this.icon});
+  const ScheduleHeaderIcon({
+    super.key,
+    required this.icon,
+    this.onTap,
+    this.selected = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 28,
-      height: 28,
-      decoration: BoxDecoration(
-        color: AppColors.signUpButtonBlue,
-        shape: BoxShape.circle,
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: Container(
+        width: 28,
+        height: 28,
+        decoration: BoxDecoration(
+          color: selected ? AppColors.welcomeBlue : AppColors.signUpButtonBlue,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          color: selected ? Colors.white : AppColors.welcomeBlue,
+          size: 16,
+        ),
       ),
-      child: Icon(icon, color: AppColors.welcomeBlue, size: 16),
     );
   }
 }
@@ -141,19 +176,19 @@ class AppointmentStatusTabs extends StatelessWidget {
     return Row(
       children: [
         _StatusChip(
-          label: 'Complete',
+          label: context.tr('complete'),
           selected: selectedStatus == AppointmentStatus.complete,
           onTap: () => onSelected(AppointmentStatus.complete),
         ),
         const SizedBox(width: 8),
         _StatusChip(
-          label: 'Upcoming',
+          label: context.tr('upcoming'),
           selected: selectedStatus == AppointmentStatus.upcoming,
           onTap: () => onSelected(AppointmentStatus.upcoming),
         ),
         const SizedBox(width: 8),
         _StatusChip(
-          label: 'Cancelled',
+          label: context.tr('cancelled'),
           selected: selectedStatus == AppointmentStatus.cancelled,
           onTap: () => onSelected(AppointmentStatus.cancelled),
         ),
@@ -195,7 +230,7 @@ class AppointmentDoctorHeader extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                doctor.specialty,
+                context.tr(doctor.specialty),
                 style: AppStyles.leagueSpartan12W300.copyWith(fontSize: 14),
               ),
             ],
@@ -299,7 +334,11 @@ class CircleIconAction extends StatelessWidget {
           color: Colors.white,
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: selected ? AppColors.welcomeBlue : AppColors.hintColor, size: 18),
+        child: Icon(
+          icon,
+          color: selected ? AppColors.welcomeBlue : AppColors.hintColor,
+          size: 18,
+        ),
       ),
     );
   }

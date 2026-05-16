@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 import 'package:medicity_app/features/home/presentation/providers/teacher_provider.dart';
 
 import '../models/appointment_models.dart';
@@ -55,7 +56,7 @@ class _AppointmentsPageState extends ConsumerState<AppointmentsPage> {
                   child: ListView(
                     padding: const EdgeInsets.only(bottom: 120),
                     children: [
-                      const AppointmentTopBar(title: 'All Appointment'),
+                      AppointmentTopBar(title: context.tr('allAppointment')),
                       const SizedBox(height: 18),
                       AppointmentStatusTabs(
                         selectedStatus: _selectedStatus,
@@ -96,9 +97,9 @@ class _AppointmentsPageState extends ConsumerState<AppointmentsPage> {
           loading: () => const Scaffold(
             body: SafeArea(child: Center(child: CircularProgressIndicator())),
           ),
-          error: (error, stackTrace) => const Scaffold(
+          error: (error, stackTrace) => Scaffold(
             body: SafeArea(
-              child: Center(child: Text('Failed to load appointments.')),
+              child: Center(child: Text(context.tr('failedLoadAppointments'))),
             ),
           ),
         );
@@ -181,7 +182,7 @@ class _AppointmentCard extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: AppointmentActionButton(
-                            label: 'Details',
+                            label: context.tr('details'),
                             onTap: () => context.goNamed(
                               AppRouteNames.appointmentDetailsPage,
                               pathParameters: {'appointmentId': appointment.id},
@@ -209,18 +210,18 @@ class _AppointmentCard extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: AppointmentActionButton(
-                            label: 'Re-Book',
-                        filled: false,
-                        onTap: () => context.goNamed(
-                          AppRouteNames.scheduleTeacherPage,
-                          pathParameters: {'teacherId': doctor.id},
-                        ),
-                      ),
+                            label: context.tr('reBook'),
+                            filled: false,
+                            onTap: () => context.goNamed(
+                              AppRouteNames.scheduleTeacherPage,
+                              pathParameters: {'teacherId': doctor.id},
+                            ),
+                          ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: AppointmentActionButton(
-                            label: 'Add Review',
+                            label: context.tr('addReview'),
                             onTap: () => context.goNamed(
                               AppRouteNames.reviewAppointmentPage,
                               pathParameters: {'appointmentId': appointment.id},
@@ -231,7 +232,7 @@ class _AppointmentCard extends ConsumerWidget {
                     ),
                   ] else ...[
                     AppointmentActionButton(
-                      label: 'Add Review',
+                      label: context.tr('addReview'),
                       onTap: () => context.goNamed(
                         AppRouteNames.reviewAppointmentPage,
                         pathParameters: {'appointmentId': appointment.id},

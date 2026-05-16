@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_routes.dart';
 import 'package:medicity_app/core/firebase/firebase_providers.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 import 'package:medicity_app/features/appointment/presentation/screens/appointment_details_page.dart';
 import 'package:medicity_app/features/appointment/presentation/screens/appointments_page.dart';
 import 'package:medicity_app/features/appointment/presentation/screens/cancel_appointment_page.dart';
@@ -82,8 +83,10 @@ class AppRouter {
               final teacherId = state.pathParameters['teacherId'];
               if (teacherId == null || teacherId.isEmpty) {
                 return Scaffold(
-                  appBar: AppBar(title: const Text('Error')),
-                  body: const Center(child: Text('Invalid teacher selection')),
+                  appBar: AppBar(title: Text(context.tr('error'))),
+                  body: Center(
+                    child: Text(context.tr('invalidTeacherSelection')),
+                  ),
                 );
               }
               return DoctorInfoPage(teacherId: teacherId);
@@ -127,8 +130,10 @@ class AppRouter {
               final teacherId = state.pathParameters['teacherId'];
               if (teacherId == null || teacherId.isEmpty) {
                 return Scaffold(
-                  appBar: AppBar(title: const Text('Error')),
-                  body: const Center(child: Text('Invalid teacher selection')),
+                  appBar: AppBar(title: Text(context.tr('error'))),
+                  body: Center(
+                    child: Text(context.tr('invalidTeacherSelection')),
+                  ),
                 );
               }
               return ScheduleDoctorPage(doctorId: teacherId);
@@ -141,8 +146,10 @@ class AppRouter {
               final teacherId = state.pathParameters['teacherId'];
               if (teacherId == null || teacherId.isEmpty) {
                 return Scaffold(
-                  appBar: AppBar(title: const Text('Error')),
-                  body: const Center(child: Text('Invalid teacher selection')),
+                  appBar: AppBar(title: Text(context.tr('error'))),
+                  body: Center(
+                    child: Text(context.tr('invalidTeacherSelection')),
+                  ),
                 );
               }
               return ScheduleFormPage(doctorId: teacherId);
@@ -155,8 +162,8 @@ class AppRouter {
               final appointmentId = state.pathParameters['appointmentId'];
               if (appointmentId == null || appointmentId.isEmpty) {
                 return Scaffold(
-                  appBar: AppBar(title: const Text('Error')),
-                  body: const Center(child: Text('Invalid appointment')),
+                  appBar: AppBar(title: Text(context.tr('error'))),
+                  body: Center(child: Text(context.tr('invalidAppointment'))),
                 );
               }
               return AppointmentDetailsPage(appointmentId: appointmentId);
@@ -169,8 +176,8 @@ class AppRouter {
               final appointmentId = state.pathParameters['appointmentId'];
               if (appointmentId == null || appointmentId.isEmpty) {
                 return Scaffold(
-                  appBar: AppBar(title: const Text('Error')),
-                  body: const Center(child: Text('Invalid appointment')),
+                  appBar: AppBar(title: Text(context.tr('error'))),
+                  body: Center(child: Text(context.tr('invalidAppointment'))),
                 );
               }
               return CancelAppointmentPage(appointmentId: appointmentId);
@@ -183,8 +190,8 @@ class AppRouter {
               final appointmentId = state.pathParameters['appointmentId'];
               if (appointmentId == null || appointmentId.isEmpty) {
                 return Scaffold(
-                  appBar: AppBar(title: const Text('Error')),
-                  body: const Center(child: Text('Invalid appointment')),
+                  appBar: AppBar(title: Text(context.tr('error'))),
+                  body: Center(child: Text(context.tr('invalidAppointment'))),
                 );
               }
               return ReviewAppointmentPage(appointmentId: appointmentId);

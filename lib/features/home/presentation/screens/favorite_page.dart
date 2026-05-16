@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 
 import '../data/teachers_mock.dart';
 import '../models/doctor_profile.dart';
@@ -37,7 +38,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                   child: ListView(
                     padding: const EdgeInsets.only(bottom: 120),
                     children: [
-                      TeachersTopBar(title: _pageTitle),
+                      TeachersTopBar(title: _pageTitle(context)),
                       const SizedBox(height: 16),
                       TeachersFilterRow(
                         highlight: _showServices
@@ -90,7 +91,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                             const SizedBox(height: 12),
                             if (i == 0)
                               PrimaryPillButton(
-                                label: 'Find a programming teacher',
+                                label: context.tr('findProgrammingTeacher'),
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 12,
                                 ),
@@ -135,23 +136,25 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
           loading: () => const Scaffold(
             body: SafeArea(child: Center(child: CircularProgressIndicator())),
           ),
-          error: (error, stackTrace) => const Scaffold(
+          error: (error, stackTrace) => Scaffold(
             body: SafeArea(
-              child: Center(child: Text('Failed to load favorites.')),
+              child: Center(child: Text(context.tr('failedLoadFavorites'))),
             ),
           ),
         );
   }
 
-  String get _pageTitle {
+  String _pageTitle(BuildContext context) {
     if (_showServices) {
-      return 'Favorite';
+      return context.tr('favorite');
     }
 
     return switch (_selectedGender) {
-      DoctorGender.female => _favoriteOnly ? 'Favorite Female' : 'Female',
-      DoctorGender.male => _favoriteOnly ? 'Favorite Male' : 'Male',
-      null => _favoriteOnly ? 'Favorite' : 'Teachers',
+      DoctorGender.female =>
+        _favoriteOnly ? context.tr('favoriteFemale') : context.tr('female'),
+      DoctorGender.male =>
+        _favoriteOnly ? context.tr('favoriteMale') : context.tr('male'),
+      null => _favoriteOnly ? context.tr('favorite') : context.tr('teachers'),
     };
   }
 
@@ -196,7 +199,7 @@ class _EmptyFavoritesMessage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 40),
       child: Text(
-        'No teachers match selected filters.',
+        context.tr('noTeachersMatchFilters'),
         textAlign: TextAlign.center,
         style: AppStyles.leagueSpartan16.copyWith(
           color: const Color(0xFF5E5E5E),
@@ -224,7 +227,7 @@ class _FavoriteTabs extends StatelessWidget {
         children: [
           Expanded(
             child: _FavoriteTabButton(
-              label: 'Teachers',
+              label: context.tr('teachers'),
               selected: !showServices,
               onTap: () => onSelect(false),
             ),
@@ -232,7 +235,7 @@ class _FavoriteTabs extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: _FavoriteTabButton(
-              label: 'Services',
+              label: context.tr('services'),
               selected: showServices,
               onTap: () => onSelect(true),
             ),
@@ -316,7 +319,7 @@ class _ServiceCategoryTile extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        category.title,
+                        context.tr(category.title),
                         style: AppStyles.leagueSpartan16.copyWith(
                           color: expanded
                               ? AppColors.welcomeBlue
@@ -344,7 +347,7 @@ class _ServiceCategoryTile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(18),
                     ),
                     child: Text(
-                      category.description,
+                      context.tr(category.description),
                       style: AppStyles.leagueSpartan12W300.copyWith(
                         fontSize: 14,
                         height: 1.2,

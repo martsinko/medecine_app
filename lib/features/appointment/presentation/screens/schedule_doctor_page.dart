@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
+import 'package:medicity_app/features/home/presentation/models/doctor_profile.dart';
 import 'package:medicity_app/features/home/presentation/providers/teacher_provider.dart';
+import 'package:medicity_app/features/profile/presentation/providers/profile_provider.dart';
 import 'package:medicity_app/shared/widgets/adaptive_avatar.dart';
 
-import '../data/schedule_mock.dart';
 import '../models/appointment_models.dart';
 import '../providers/appointment_provider.dart';
 import '../widgets/appointment_components.dart';
@@ -60,11 +62,18 @@ class ScheduleDoctorPage extends ConsumerWidget {
                     padding: const EdgeInsets.only(bottom: 120),
                     children: [
                       ScheduleFlowHeader(
-                        title: 'Schedule',
+                        title: context.tr('schedule'),
                         onTitleTap: () => context.goNamed(
                           AppRouteNames.scheduleFormPage,
                           pathParameters: {'teacherId': teacher.id},
                         ),
+                        onSupportTap: () =>
+                            context.pushNamed(AppRouteNames.helpCenterPage),
+                        onHelpTap: () =>
+                            context.pushNamed(AppRouteNames.helpCenterPage),
+                        favoriteSelected: teacher.isFavorite,
+                        onFavoriteTap: () =>
+                            _toggleFavorite(context, ref, teacher),
                       ),
                       const SizedBox(height: 14),
                       Container(
@@ -96,8 +105,9 @@ class ScheduleDoctorPage extends ConsumerWidget {
                                         alignment: Alignment.centerRight,
                                         child: InfoPill(
                                           icon: Icons.workspace_premium_rounded,
-                                          label:
-                                              '${teacher.experienceYears} years\nexperience',
+                                          label: context.tr('yearsExperience', {
+                                            'years': teacher.experienceYears,
+                                          }),
                                         ),
                                       ),
                                       const SizedBox(height: 8),
@@ -110,7 +120,7 @@ class ScheduleDoctorPage extends ConsumerWidget {
                                           ),
                                         ),
                                         child: Text(
-                                          teacher.focus,
+                                          context.tr(teacher.focus),
                                           style: AppStyles.leagueSpartan12W300
                                               .copyWith(
                                                 color: Colors.white,
@@ -147,7 +157,7 @@ class ScheduleDoctorPage extends ConsumerWidget {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    teacher.specialty,
+                                    context.tr(teacher.specialty),
                                     style: AppStyles.leagueSpartan12W300
                                         .copyWith(fontSize: 14),
                                   ),
@@ -159,17 +169,33 @@ class ScheduleDoctorPage extends ConsumerWidget {
                               spacing: 8,
                               runSpacing: 8,
                               children: [
-                                InfoPill(
-                                  icon: Icons.star_rounded,
-                                  label: teacher.rating.toStringAsFixed(1),
+                                _TappablePill(
+                                  onTap: () =>
+                                      context.goNamed(AppRouteNames.ratingPage),
+                                  child: InfoPill(
+                                    icon: Icons.star_rounded,
+                                    label: teacher.rating.toStringAsFixed(1),
+                                  ),
                                 ),
-                                InfoPill(
-                                  icon: Icons.rate_review_outlined,
-                                  label: '${teacher.reviews} reviews',
+                                _TappablePill(
+                                  onTap: () =>
+                                      context.goNamed(AppRouteNames.ratingPage),
+                                  child: InfoPill(
+                                    icon: Icons.rate_review_outlined,
+                                    label: context.tr('reviewsCount', {
+                                      'count': teacher.reviews,
+                                    }),
+                                  ),
                                 ),
-                                InfoPill(
-                                  icon: Icons.watch_later_outlined,
-                                  label: teacher.availability,
+                                _TappablePill(
+                                  onTap: () => context.goNamed(
+                                    AppRouteNames.scheduleFormPage,
+                                    pathParameters: {'teacherId': teacher.id},
+                                  ),
+                                  child: InfoPill(
+                                    icon: Icons.watch_later_outlined,
+                                    label: context.tr(teacher.availability),
+                                  ),
                                 ),
                               ],
                             ),
@@ -178,7 +204,7 @@ class ScheduleDoctorPage extends ConsumerWidget {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        'Profile',
+                        context.tr('profileSection'),
                         style: AppStyles.leagueSpartan16.copyWith(
                           color: AppColors.welcomeBlue,
                           fontWeight: FontWeight.w600,
@@ -186,7 +212,7 @@ class ScheduleDoctorPage extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        teacher.profile,
+                        context.tr(teacher.profile),
                         style: AppStyles.leagueSpartan12W300.copyWith(
                           fontSize: 14,
                           height: 1.18,
@@ -256,8 +282,17 @@ class ScheduleDoctorPage extends ConsumerWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                for (final weekday in monthWeekdays)
-                                  _WeekdayChip(label: weekday),
+                                for (final weekday in localizedWeekdayCodes())
+                                  _WeekdayChip(
+                                    label: weekday,
+                                    onTap: () => _selectFirstAvailableWeekday(
+                                      ref,
+                                      teacher.id,
+                                      weekday,
+                                      dayOptions,
+                                      displayedMonth,
+                                    ),
+                                  ),
                               ],
                             ),
                             const SizedBox(height: 14),
@@ -315,11 +350,11 @@ class ScheduleDoctorPage extends ConsumerWidget {
                                                 )
                                                 .selectWeekDay(matchedOption);
                                             context.goNamed(
-                                          AppRouteNames.scheduleFormPage,
-                                          pathParameters: {
-                                            'teacherId': teacher.id,
-                                          },
-                                        );
+                                              AppRouteNames.scheduleFormPage,
+                                              pathParameters: {
+                                                'teacherId': teacher.id,
+                                              },
+                                            );
                                           },
                                     child: Container(
                                       decoration: BoxDecoration(
@@ -363,33 +398,90 @@ class ScheduleDoctorPage extends ConsumerWidget {
           loading: () => const Scaffold(
             body: SafeArea(child: Center(child: CircularProgressIndicator())),
           ),
-          error: (error, stackTrace) => const Scaffold(
+          error: (error, stackTrace) => Scaffold(
             body: SafeArea(
-              child: Center(child: Text('Failed to load teacher.')),
+              child: Center(child: Text(context.tr('failedLoadTeacher'))),
             ),
           ),
         );
+  }
+
+  Future<void> _toggleFavorite(
+    BuildContext context,
+    WidgetRef ref,
+    DoctorProfile teacher,
+  ) async {
+    if (ref.read(currentUserIdProvider) == null) {
+      context.goNamed(AppRouteNames.loginPage);
+      return;
+    }
+
+    await ref
+        .read(profileActionProvider.notifier)
+        .toggleFavoriteTeacher(teacher.id, !teacher.isFavorite);
+  }
+
+  void _selectFirstAvailableWeekday(
+    WidgetRef ref,
+    String teacherId,
+    String weekday,
+    List<ScheduleDayOption> dayOptions,
+    DateTime displayedMonth,
+  ) {
+    final monthOptions = dayOptions.where(
+      (option) =>
+          option.weekday == weekday &&
+          option.month == displayedMonth.month &&
+          option.year == displayedMonth.year,
+    );
+    if (monthOptions.isEmpty) {
+      return;
+    }
+    ref
+        .read(scheduleDraftProvider(teacherId).notifier)
+        .selectWeekDay(monthOptions.first);
+  }
+}
+
+class _TappablePill extends StatelessWidget {
+  final Widget child;
+  final VoidCallback onTap;
+
+  const _TappablePill({required this.child, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: child,
+    );
   }
 }
 
 class _WeekdayChip extends StatelessWidget {
   final String label;
+  final VoidCallback? onTap;
 
-  const _WeekdayChip({required this.label});
+  const _WeekdayChip({required this.label, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 38,
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColors.welcomeBlue,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        label,
-        style: AppStyles.leagueSpartan12W600.copyWith(fontSize: 12),
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: Container(
+        width: 38,
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        decoration: BoxDecoration(
+          color: AppColors.welcomeBlue,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: AppStyles.leagueSpartan12W600.copyWith(fontSize: 12),
+        ),
       ),
     );
   }

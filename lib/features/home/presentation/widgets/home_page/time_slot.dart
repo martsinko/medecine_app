@@ -1,5 +1,6 @@
 import 'package:dotted_dashed_line/dotted_dashed_line.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
 
 import 'event_card.dart';
@@ -20,7 +21,7 @@ class TimeSlot extends StatelessWidget {
           SizedBox(
             width: 44,
             child: Text(
-              '${hour % 12 == 0 ? 12 : hour % 12} ${hour < 12 ? 'AM' : 'PM'}',
+              DateFormat.jm().format(DateTime(2026, 1, 1, hour)),
               style: AppStyles.leagueSpartan12W300.copyWith(
                 color: AppColors.welcomeBlue,
                 fontSize: 14,

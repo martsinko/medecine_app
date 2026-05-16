@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 
 import '../data/profile_mock.dart';
 import '../models/profile_models.dart';
@@ -21,10 +22,10 @@ class NotificationSettingsPage extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(24, 18, 24, 0),
           child: ListView(
             children: [
-              const ProfileTopBar(title: 'Notification Setting'),
+              ProfileTopBar(title: context.tr('notificationSetting')),
               const SizedBox(height: 34),
               NotificationSwitchTile(
-                title: 'General Notification',
+                title: context.tr('generalNotification'),
                 value: preferences.generalNotification,
                 onChanged: (value) => _update(
                   ref,
@@ -34,7 +35,7 @@ class NotificationSettingsPage extends ConsumerWidget {
                 ),
               ),
               NotificationSwitchTile(
-                title: 'Sound',
+                title: context.tr('sound'),
                 value: preferences.sound,
                 onChanged: (value) => _update(
                   ref,
@@ -44,7 +45,7 @@ class NotificationSettingsPage extends ConsumerWidget {
                 ),
               ),
               NotificationSwitchTile(
-                title: 'Sound Call',
+                title: context.tr('soundCall'),
                 value: preferences.soundCall,
                 onChanged: (value) => _update(
                   ref,
@@ -54,7 +55,7 @@ class NotificationSettingsPage extends ConsumerWidget {
                 ),
               ),
               NotificationSwitchTile(
-                title: 'Vibrate',
+                title: context.tr('vibrate'),
                 value: preferences.vibrate,
                 onChanged: (value) => _update(
                   ref,
@@ -64,7 +65,7 @@ class NotificationSettingsPage extends ConsumerWidget {
                 ),
               ),
               NotificationSwitchTile(
-                title: 'Special Offers',
+                title: context.tr('specialOffers'),
                 value: preferences.specialOffers,
                 onChanged: (value) => _update(
                   ref,
@@ -74,7 +75,7 @@ class NotificationSettingsPage extends ConsumerWidget {
                 ),
               ),
               NotificationSwitchTile(
-                title: 'Promo And Discount',
+                title: context.tr('promoAndDiscount'),
                 value: preferences.promoAndDiscount,
                 onChanged: (value) => _update(
                   ref,
@@ -97,19 +98,26 @@ class NotificationSettingsPage extends ConsumerWidget {
     bool value,
   ) {
     final updated = switch (type) {
-      NotificationPreferenceType.generalNotification =>
-        preferences.copyWith(generalNotification: value),
+      NotificationPreferenceType.generalNotification => preferences.copyWith(
+        generalNotification: value,
+      ),
       NotificationPreferenceType.sound => preferences.copyWith(sound: value),
-      NotificationPreferenceType.soundCall =>
-        preferences.copyWith(soundCall: value),
-      NotificationPreferenceType.vibrate =>
-        preferences.copyWith(vibrate: value),
-      NotificationPreferenceType.specialOffers =>
-        preferences.copyWith(specialOffers: value),
-      NotificationPreferenceType.promoAndDiscount =>
-        preferences.copyWith(promoAndDiscount: value),
+      NotificationPreferenceType.soundCall => preferences.copyWith(
+        soundCall: value,
+      ),
+      NotificationPreferenceType.vibrate => preferences.copyWith(
+        vibrate: value,
+      ),
+      NotificationPreferenceType.specialOffers => preferences.copyWith(
+        specialOffers: value,
+      ),
+      NotificationPreferenceType.promoAndDiscount => preferences.copyWith(
+        promoAndDiscount: value,
+      ),
     };
 
-    ref.read(profileActionProvider.notifier).updateNotificationPreferences(updated);
+    ref
+        .read(profileActionProvider.notifier)
+        .updateNotificationPreferences(updated);
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 import 'package:medicity_app/features/home/presentation/providers/teacher_provider.dart';
 
 import '../models/appointment_models.dart';
@@ -64,12 +65,12 @@ class _CancelAppointmentPageState extends ConsumerState<CancelAppointmentPage> {
                           child: ListView(
                             padding: const EdgeInsets.only(bottom: 120),
                             children: [
-                              const AppointmentTopBar(
-                                title: 'Cancel Appointment',
+                              AppointmentTopBar(
+                                title: context.tr('cancelAppointment'),
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+                                context.tr('cancelAppointmentDescription'),
                                 style: AppStyles.leagueSpartan12W300.copyWith(
                                   color: const Color(0xFF5E5E5E),
                                   fontSize: 14,
@@ -80,7 +81,7 @@ class _CancelAppointmentPageState extends ConsumerState<CancelAppointmentPage> {
                               AppointmentDoctorHeader(doctor: doctor),
                               const SizedBox(height: 22),
                               ReasonOptionTile(
-                                title: 'Rescheduling',
+                                title: context.tr('rescheduling'),
                                 selected:
                                     _selectedReason ==
                                     CancelReason.rescheduling,
@@ -90,7 +91,7 @@ class _CancelAppointmentPageState extends ConsumerState<CancelAppointmentPage> {
                                 ),
                               ),
                               ReasonOptionTile(
-                                title: 'Weather Conditions',
+                                title: context.tr('weatherConditions'),
                                 selected:
                                     _selectedReason ==
                                     CancelReason.weatherConditions,
@@ -100,7 +101,7 @@ class _CancelAppointmentPageState extends ConsumerState<CancelAppointmentPage> {
                                 ),
                               ),
                               ReasonOptionTile(
-                                title: 'Unexpected Work',
+                                title: context.tr('unexpectedWork'),
                                 selected:
                                     _selectedReason ==
                                     CancelReason.unexpectedWork,
@@ -110,7 +111,7 @@ class _CancelAppointmentPageState extends ConsumerState<CancelAppointmentPage> {
                                 ),
                               ),
                               ReasonOptionTile(
-                                title: 'Others',
+                                title: context.tr('others'),
                                 selected:
                                     _selectedReason == CancelReason.others,
                                 onTap: () => setState(
@@ -119,7 +120,7 @@ class _CancelAppointmentPageState extends ConsumerState<CancelAppointmentPage> {
                               ),
                               const SizedBox(height: 18),
                               Text(
-                                'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+                                context.tr('cancelAppointmentNote'),
                                 style: AppStyles.leagueSpartan12W300.copyWith(
                                   color: AppColors.hintColor,
                                   fontSize: 14,
@@ -138,7 +139,7 @@ class _CancelAppointmentPageState extends ConsumerState<CancelAppointmentPage> {
                                   maxLines: null,
                                   expands: true,
                                   decoration: InputDecoration(
-                                    hintText: 'Enter Your Reason Here....',
+                                    hintText: context.tr('enterReason'),
                                     hintStyle: AppStyles.leagueSpartan16
                                         .copyWith(color: AppColors.hintColor),
                                     contentPadding: const EdgeInsets.all(18),
@@ -148,7 +149,7 @@ class _CancelAppointmentPageState extends ConsumerState<CancelAppointmentPage> {
                               ),
                               const SizedBox(height: 34),
                               AppointmentActionButton(
-                                label: 'Cancel Appointment',
+                                label: context.tr('cancelAppointment'),
                                 onTap: () async {
                                   await ref
                                       .read(appointmentActionProvider.notifier)
@@ -176,9 +177,11 @@ class _CancelAppointmentPageState extends ConsumerState<CancelAppointmentPage> {
                       child: Center(child: CircularProgressIndicator()),
                     ),
                   ),
-                  error: (error, stackTrace) => const Scaffold(
+                  error: (error, stackTrace) => Scaffold(
                     body: SafeArea(
-                      child: Center(child: Text('Failed to load teacher.')),
+                      child: Center(
+                        child: Text(context.tr('failedLoadTeacher')),
+                      ),
                     ),
                   ),
                 );
@@ -186,9 +189,9 @@ class _CancelAppointmentPageState extends ConsumerState<CancelAppointmentPage> {
           loading: () => const Scaffold(
             body: SafeArea(child: Center(child: CircularProgressIndicator())),
           ),
-          error: (error, stackTrace) => const Scaffold(
+          error: (error, stackTrace) => Scaffold(
             body: SafeArea(
-              child: Center(child: Text('Failed to load appointment.')),
+              child: Center(child: Text(context.tr('failedLoadAppointment'))),
             ),
           ),
         );

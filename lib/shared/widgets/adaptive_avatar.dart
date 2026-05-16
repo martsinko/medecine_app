@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:medicity_app/core/constants/app_images.dart';
@@ -32,6 +34,16 @@ class AdaptiveAvatar extends StatelessWidget {
       return Image.asset(AppImages.exampleAvatar, fit: BoxFit.cover);
     }
 
+    final uri = Uri.tryParse(source);
+    if (uri != null && uri.scheme == 'file') {
+      return Image.file(
+        File(uri.toFilePath()),
+        fit: BoxFit.cover,
+        errorBuilder: (_, error, stackTrace) =>
+            Image.asset(AppImages.exampleAvatar, fit: BoxFit.cover),
+      );
+    }
+
     if (source.startsWith('http') && source.toLowerCase().endsWith('.svg')) {
       return SvgPicture.network(
         source,
@@ -44,6 +56,15 @@ class AdaptiveAvatar extends StatelessWidget {
     if (source.startsWith('http')) {
       return Image.network(
         source,
+        fit: BoxFit.cover,
+        errorBuilder: (_, error, stackTrace) =>
+            Image.asset(AppImages.exampleAvatar, fit: BoxFit.cover),
+      );
+    }
+
+    if (source.startsWith('/')) {
+      return Image.file(
+        File(source),
         fit: BoxFit.cover,
         errorBuilder: (_, error, stackTrace) =>
             Image.asset(AppImages.exampleAvatar, fit: BoxFit.cover),

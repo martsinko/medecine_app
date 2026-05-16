@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:medicity_app/core/firebase/firebase_providers.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 import 'package:medicity_app/features/appointment/data/appointment_repository.dart';
 import 'package:medicity_app/features/profile/presentation/providers/profile_provider.dart';
 
-import '../data/schedule_mock.dart';
 import '../models/appointment_models.dart';
 
 final appointmentRepositoryProvider = Provider<AppointmentRepository>((ref) {
@@ -46,20 +46,7 @@ final scheduleDraftProvider =
       ref,
       doctorId,
     ) {
-      return ScheduleDraftNotifier(
-        ScheduleDraft(
-          doctorId: doctorId,
-          selectedMonthIndex: 0,
-          selectedCalendarDay: 24,
-          selectedDay: scheduleWeekOptions[2],
-          selectedTime: '10:00 AM',
-          bookingForSelf: false,
-          patientName: 'Jane Doe',
-          patientAge: '30',
-          patientGender: PatientGender.female,
-          problemDescription: '',
-        ),
-      );
+      return ScheduleDraftNotifier(defaultScheduleDraft(doctorId));
     });
 
 class AppointmentActionNotifier extends StateNotifier<AsyncValue<void>> {
@@ -138,7 +125,7 @@ class AppointmentActionNotifier extends StateNotifier<AsyncValue<void>> {
       patientAge: draft.patientAge,
       patientGender: draft.patientGender,
       problemDescription: draft.problemDescription.isEmpty
-          ? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ea commodo consequat.'
+          ? AppLocalizations.currentText('defaultProblemDescription')
           : draft.problemDescription,
     );
 

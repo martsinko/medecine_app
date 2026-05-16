@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 import 'package:medicity_app/features/home/presentation/models/doctor_profile.dart';
 import 'package:medicity_app/features/home/presentation/providers/teacher_filters_provider.dart';
 import 'package:medicity_app/features/profile/presentation/providers/profile_provider.dart';
@@ -25,7 +26,7 @@ class TeachersPage extends ConsumerWidget {
           child: teachersAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (error, stackTrace) =>
-                const Center(child: Text('Failed to load teachers.')),
+                Center(child: Text(context.tr('failedLoadTeachers'))),
             data: (teachers) {
               final visibleTeachers = applyTeacherListFilters(
                 teachers,
@@ -41,7 +42,9 @@ class TeachersPage extends ConsumerWidget {
                     const SizedBox(height: 14),
                 itemBuilder: (context, index) {
                   if (index == 0) {
-                    return TeachersTopBar(title: teacherListTitle(filters));
+                    return TeachersTopBar(
+                      title: context.tr(teacherListTitle(filters)),
+                    );
                   }
 
                   if (index == 1) {
@@ -144,7 +147,7 @@ class _EmptyTeachersMessage extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 40),
       child: Text(
-        'No teachers match selected filters.',
+        context.tr('noTeachersMatchFilters'),
         textAlign: TextAlign.center,
         style: AppStyles.leagueSpartan16.copyWith(
           color: const Color(0xFF5E5E5E),

@@ -41,8 +41,7 @@ class AppointmentEntry {
     this.patientName = 'Jane Doe',
     this.patientAge = '30',
     this.patientGender = PatientGender.female,
-    this.problemDescription =
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ea commodo consequat.',
+    this.problemDescription = '',
   });
 
   AppointmentEntry copyWith({
@@ -228,6 +227,27 @@ class ScheduleDraft {
   }
 }
 
+ScheduleDraft defaultScheduleDraft(String doctorId) {
+  final today = DateTime.now();
+  final selectedDate = DateTime(today.year, today.month, today.day);
+  return ScheduleDraft(
+    doctorId: doctorId,
+    selectedMonthIndex: 0,
+    selectedCalendarDay: selectedDate.day,
+    selectedDay: ScheduleDayOption.fromIsoDate(
+      _scheduleIsoDateFormat.format(selectedDate),
+    ),
+    selectedTime: _scheduleTimeOutputFormat.format(
+      _scheduleTimeInputFormat.parse('10:00'),
+    ),
+    bookingForSelf: true,
+    patientName: '',
+    patientAge: '',
+    patientGender: PatientGender.female,
+    problemDescription: '',
+  );
+}
+
 final DateFormat _scheduleIsoDateFormat = DateFormat('yyyy-MM-dd');
 final DateFormat _scheduleWeekdayFormat = DateFormat('E');
 final DateFormat _scheduleMonthFormat = DateFormat('MMMM');
@@ -235,6 +255,16 @@ final DateFormat _scheduleMonthDayFormat = DateFormat('MMMM d');
 final DateFormat _scheduleYearFormat = DateFormat('yyyy');
 final DateFormat _scheduleTimeInputFormat = DateFormat('HH:mm');
 final DateFormat _scheduleTimeOutputFormat = DateFormat('h:mm a');
+
+List<String> localizedWeekdayCodes() {
+  final monday = DateTime(2026, 1, 5);
+  return [
+    for (int index = 0; index < DateTime.daysPerWeek; index++)
+      _scheduleWeekdayFormat
+          .format(monday.add(Duration(days: index)))
+          .toUpperCase(),
+  ];
+}
 
 List<ScheduleDayOption> buildScheduleDayOptions(List<String> availableDates) {
   return [

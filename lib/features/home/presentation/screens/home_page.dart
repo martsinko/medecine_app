@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 import 'package:medicity_app/shared/widgets/teacher_card.dart';
 import 'package:medicity_app/features/appointment/presentation/models/appointment_models.dart';
 import 'package:medicity_app/features/appointment/presentation/providers/appointment_provider.dart';
@@ -82,6 +84,7 @@ class HomePage extends ConsumerWidget {
                               for (final appt in dayAppointments)
                                 Event(
                                   title: _teacherNameById(
+                                    context,
                                     teachersAsync.value,
                                     appt.doctorId,
                                   ),
@@ -133,7 +136,7 @@ class HomePage extends ConsumerWidget {
                       return Padding(
                         padding: EdgeInsets.all(24),
                         child: Text(
-                          'No teachers found.',
+                          context.tr('noTeachersFound'),
                           style: AppStyles.leagueSpartan16,
                         ),
                       );
@@ -145,7 +148,7 @@ class HomePage extends ConsumerWidget {
                         for (final teacher in filteredTeachers)
                           TeacherCard(
                             name: teacher.name,
-                            description: teacher.specialty,
+                            description: context.tr(teacher.specialty),
                             rating: teacher.rating,
                             comments: teacher.reviews,
                             imagePath: teacher.imagePath,
@@ -164,7 +167,7 @@ class HomePage extends ConsumerWidget {
                   error: (error, stackTrace) => Padding(
                     padding: const EdgeInsets.only(top: 24),
                     child: Text(
-                      'Failed to load teachers.',
+                      context.tr('failedLoadTeachers'),
                       style: AppStyles.leagueSpartan16,
                     ),
                   ),
@@ -178,9 +181,13 @@ class HomePage extends ConsumerWidget {
   }
 }
 
-String _teacherNameById(List<DoctorProfile>? teachers, String teacherId) {
+String _teacherNameById(
+  BuildContext context,
+  List<DoctorProfile>? teachers,
+  String teacherId,
+) {
   if (teachers == null || teachers.isEmpty) {
-    return 'Unknown';
+    return context.tr('unknown');
   }
 
   for (final teacher in teachers) {
@@ -189,10 +196,27 @@ String _teacherNameById(List<DoctorProfile>? teachers, String teacherId) {
     }
   }
 
-  return 'Unknown';
+  return context.tr('unknown');
 }
 
 bool _matchesDate(String dateLabel, int month, int day, int year) {
+  final formats = [
+    DateFormat('MMMM d, yyyy'),
+    DateFormat('MMMM d, yyyy', 'en'),
+    DateFormat.yMMMd(),
+    DateFormat.yMMMd('en'),
+  ];
+  for (final format in formats) {
+    try {
+      final parsed = format.parseLoose(dateLabel);
+      if (parsed.year == year && parsed.month == month && parsed.day == day) {
+        return true;
+      }
+    } catch (_) {
+      // Keep compatibility with older stored labels below.
+    }
+  }
+
   final lower = dateLabel.toLowerCase();
   final monthNames = {
     'january': 1,

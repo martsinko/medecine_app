@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 
 import '../data/profile_mock.dart';
 import '../models/profile_models.dart';
@@ -33,14 +34,14 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
             child: Column(
               children: [
                 ProfileTopBar(
-                  title: 'Help Center',
+                  title: context.tr('helpCenter'),
                   backgroundColor: AppColors.welcomeBlue,
                   titleColor: Colors.white,
                   iconColor: Colors.white,
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'How Can We Help You?',
+                  context.tr('howCanWeHelp'),
                   style: AppStyles.leagueSpartan16.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w400,
@@ -59,7 +60,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                         Icons.search_rounded,
                         color: AppColors.hintColor,
                       ),
-                      hintText: 'Search...',
+                      hintText: context.tr('search'),
                       hintStyle: AppStyles.leagueSpartan16.copyWith(
                         color: AppColors.signUpButtonBlue,
                       ),
@@ -79,7 +80,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                   Row(
                     children: [
                       HelpTabButton(
-                        title: 'FAQ',
+                        title: context.tr('faq'),
                         selected: !_showContactUs,
                         onTap: () {
                           setState(() {
@@ -89,7 +90,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                       ),
                       const SizedBox(width: 10),
                       HelpTabButton(
-                        title: 'Contact Us',
+                        title: context.tr('contactUs'),
                         selected: _showContactUs,
                         onTap: () {
                           setState(() {
@@ -126,7 +127,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                               const SizedBox(width: 14),
                               Expanded(
                                 child: Text(
-                                  option.title,
+                                  context.tr(option.title),
                                   style: AppStyles.leagueSpartan20.copyWith(
                                     fontWeight: FontWeight.w400,
                                   ),
@@ -152,7 +153,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                             children: [
                               for (int i = 0; i < faqTags.length; i++)
                                 HelpTagChip(
-                                  label: faqTags[i],
+                                  label: context.tr(faqTags[i]),
                                   selected: i == 0,
                                 ),
                             ],
@@ -214,7 +215,7 @@ class _FaqCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      article.title,
+                      context.tr(article.title),
                       style: AppStyles.leagueSpartan12W300.copyWith(
                         color: const Color(0xFF6A6A6A),
                         fontSize: 13,
@@ -236,7 +237,7 @@ class _FaqCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
               child: Text(
-                article.body,
+                context.tr(article.body),
                 style: AppStyles.leagueSpartan12W300.copyWith(
                   color: const Color(0xFF6A6A6A),
                   fontSize: 13,

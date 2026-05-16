@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 import 'package:medicity_app/features/home/presentation/providers/teacher_provider.dart';
 import 'package:medicity_app/shared/widgets/adaptive_avatar.dart';
 
@@ -66,10 +67,10 @@ class _ReviewAppointmentPageState extends ConsumerState<ReviewAppointmentPage> {
                           child: ListView(
                             padding: const EdgeInsets.only(bottom: 120),
                             children: [
-                              const AppointmentTopBar(title: 'Review'),
+                              AppointmentTopBar(title: context.tr('review')),
                               const SizedBox(height: 16),
                               Text(
-                                'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+                                context.tr('reviewDescription'),
                                 style: AppStyles.leagueSpartan12W300.copyWith(
                                   color: const Color(0xFF5E5E5E),
                                   fontSize: 14,
@@ -96,7 +97,7 @@ class _ReviewAppointmentPageState extends ConsumerState<ReviewAppointmentPage> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                teacher.specialty,
+                                context.tr(teacher.specialty),
                                 textAlign: TextAlign.center,
                                 style: AppStyles.leagueSpartan16.copyWith(
                                   color: const Color(0xFF5E5E5E),
@@ -126,7 +127,7 @@ class _ReviewAppointmentPageState extends ConsumerState<ReviewAppointmentPage> {
                                   maxLines: null,
                                   expands: true,
                                   decoration: InputDecoration(
-                                    hintText: 'Enter Your Comment Here...',
+                                    hintText: context.tr('enterComment'),
                                     hintStyle: AppStyles.leagueSpartan16
                                         .copyWith(color: AppColors.hintColor),
                                     contentPadding: const EdgeInsets.all(18),
@@ -136,7 +137,7 @@ class _ReviewAppointmentPageState extends ConsumerState<ReviewAppointmentPage> {
                               ),
                               const SizedBox(height: 34),
                               AppointmentActionButton(
-                                label: 'Add Review',
+                                label: context.tr('addReview'),
                                 onTap: () async {
                                   await ref
                                       .read(appointmentActionProvider.notifier)
@@ -164,9 +165,11 @@ class _ReviewAppointmentPageState extends ConsumerState<ReviewAppointmentPage> {
                       child: Center(child: CircularProgressIndicator()),
                     ),
                   ),
-                  error: (error, stackTrace) => const Scaffold(
+                  error: (error, stackTrace) => Scaffold(
                     body: SafeArea(
-                      child: Center(child: Text('Failed to load teacher.')),
+                      child: Center(
+                        child: Text(context.tr('failedLoadTeacher')),
+                      ),
                     ),
                   ),
                 );
@@ -174,9 +177,9 @@ class _ReviewAppointmentPageState extends ConsumerState<ReviewAppointmentPage> {
           loading: () => const Scaffold(
             body: SafeArea(child: Center(child: CircularProgressIndicator())),
           ),
-          error: (error, stackTrace) => const Scaffold(
+          error: (error, stackTrace) => Scaffold(
             body: SafeArea(
-              child: Center(child: Text('Failed to load appointment.')),
+              child: Center(child: Text(context.tr('failedLoadAppointment'))),
             ),
           ),
         );

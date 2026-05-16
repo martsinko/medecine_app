@@ -65,17 +65,19 @@ List<DoctorProfile> applyTeacherListFilters(
 
 String teacherListTitle(TeacherListFilters filters) {
   final genderTitle = switch (filters.gender) {
-    DoctorGender.female => 'Female',
-    DoctorGender.male => 'Male',
+    DoctorGender.female => 'female',
+    DoctorGender.male => 'male',
     null => null,
   };
 
   if (filters.favoriteOnly && genderTitle != null) {
-    return 'Favorite $genderTitle';
+    return filters.gender == DoctorGender.female
+        ? 'favoriteFemale'
+        : 'favoriteMale';
   }
 
   if (filters.favoriteOnly) {
-    return 'Favorite';
+    return 'favorite';
   }
 
   if (genderTitle != null) {
@@ -83,7 +85,7 @@ String teacherListTitle(TeacherListFilters filters) {
   }
 
   return switch (filters.sort) {
-    TeacherSortFilter.rating => 'Rating',
-    TeacherSortFilter.alphabetical || TeacherSortFilter.none => 'Teachers',
+    TeacherSortFilter.rating => 'rating',
+    TeacherSortFilter.alphabetical || TeacherSortFilter.none => 'teachers',
   };
 }

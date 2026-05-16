@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:medicity_app/shared/widgets/app_button.dart';
 
 import '../../../../core/constants/app_index.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../shared/widgets/custom_appbar.dart';
 import '../../../../shared/widgets/custom_textfield.dart';
 import '../providers/auth_provider.dart';
@@ -42,7 +43,7 @@ class _LogInPageState extends ConsumerState<LogInPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppbar(
-        title: 'Log In',
+        title: context.tr('login'),
         onBackPressed: widget.isFromWelcome
             ? () => context.goNamed(AppRouteNames.welcomeScreen)
             : () => context.pop(),
@@ -55,7 +56,7 @@ class _LogInPageState extends ConsumerState<LogInPage> {
             children: [
               const SizedBox(height: 34),
               Text(
-                AppString.loginTitle,
+                context.tr('welcome'),
                 style: AppStyles.leagueSpartan24.copyWith(
                   color: AppColors.welcomeBlue,
                   fontWeight: FontWeight.w600,
@@ -63,19 +64,19 @@ class _LogInPageState extends ConsumerState<LogInPage> {
               ),
               const SizedBox(height: 12),
               Text(
-                AppString.welcomeLatinText,
+                context.tr('welcomeDescription'),
                 style: AppStyles.leagueSpartan12W300,
               ),
               const SizedBox(height: 48),
               CustomTextField(
-                labelText: AppString.emailField,
+                labelText: context.tr('emailOrPhone'),
                 hintText: 'example@example.com',
                 controller: _emailController,
               ),
               const SizedBox(height: 20),
               CustomTextField(
-                labelText: AppString.passwordTitle,
-                hintText: AppString.hintPassword,
+                labelText: context.tr('password'),
+                hintText: context.tr('enterPassword'),
                 isPassword: true,
                 controller: _passwordController,
               ),
@@ -85,7 +86,7 @@ class _LogInPageState extends ConsumerState<LogInPage> {
                 child: GestureDetector(
                   onTap: () => context.pushNamed(AppRouteNames.setPassword),
                   child: Text(
-                    AppString.forgetPassword,
+                    context.tr('forgotPassword'),
                     style: AppStyles.leagueSpartan12W600.copyWith(
                       color: AppColors.welcomeBlue,
                       fontWeight: FontWeight.w500,
@@ -97,7 +98,7 @@ class _LogInPageState extends ConsumerState<LogInPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 65),
                 child: AppButton(
-                  title: AppString.logIn,
+                  title: context.tr('login'),
                   onPressed: authAction.isLoading
                       ? () {}
                       : () async {
@@ -110,7 +111,9 @@ class _LogInPageState extends ConsumerState<LogInPage> {
                           final state = ref.read(authActionProvider);
                           if (state.hasError && context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(state.error.toString())),
+                              SnackBar(
+                                content: Text(context.trError(state.error!)),
+                              ),
                             );
                             return;
                           }
@@ -131,14 +134,14 @@ class _LogInPageState extends ConsumerState<LogInPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    AppString.dontHaveAccount,
+                    context.tr('dontHaveAccount'),
                     style: AppStyles.leagueSpartan12W300,
                   ),
                   const SizedBox(width: 4),
                   GestureDetector(
                     onTap: () => context.pushNamed(AppRouteNames.signUpPage),
                     child: Text(
-                      AppString.signUp,
+                      context.tr('signUp'),
                       style: AppStyles.leagueSpartan12W600.copyWith(
                         color: AppColors.welcomeBlue,
                         fontWeight: FontWeight.w500,

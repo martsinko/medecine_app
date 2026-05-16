@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 import 'package:medicity_app/shared/widgets/adaptive_avatar.dart';
 
 import '../../models/doctor_profile.dart';
@@ -76,7 +77,7 @@ class TeachersFilterRow extends StatelessWidget {
       child: Row(
         children: [
           Text(
-            'Sort By',
+            context.tr('sortBy'),
             style: AppStyles.leagueSpartan12W300.copyWith(
               color: const Color(0xFF444444),
               fontSize: 13,
@@ -84,7 +85,7 @@ class TeachersFilterRow extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           _LabelFilterChip(
-            label: 'A - Z',
+            label: context.tr('az'),
             selected: azSelected,
             onTap: onAZTap,
           ),
@@ -172,7 +173,7 @@ class TeacherCompactCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  doctor.specialty,
+                  context.tr(doctor.specialty),
                   style: AppStyles.leagueSpartan12W300.copyWith(
                     color: const Color(0xFF373737),
                     fontSize: 14,
@@ -181,7 +182,10 @@ class TeacherCompactCard extends StatelessWidget {
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    PrimaryPillButton(label: 'Info', onTap: onInfoTap),
+                    PrimaryPillButton(
+                      label: context.tr('info'),
+                      onTap: onInfoTap,
+                    ),
                     const Spacer(),
                     RoundActionButton(
                       icon: Icons.calendar_month_rounded,

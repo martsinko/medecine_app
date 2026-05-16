@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 import 'package:medicity_app/features/home/presentation/widgets/home_page/time_slot.dart';
 
 class EventCard extends StatelessWidget {
@@ -26,7 +27,7 @@ class EventCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        event.title,
+                        context.tr(event.title),
                         style: AppStyles.leagueSpartan14,
                       ),
                     ),
@@ -65,7 +66,7 @@ class EventCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  event.description,
+                  context.tr(event.description),
                   style: AppStyles.leagueSpartan12W300.copyWith(height: 1),
                 ),
               ],

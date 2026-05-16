@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicity_app/core/constants/app_index.dart';
+import 'package:medicity_app/core/localization/app_localizations.dart';
 import 'package:medicity_app/features/home/presentation/providers/teacher_provider.dart';
 
 import '../models/appointment_models.dart';
@@ -45,8 +46,8 @@ class AppointmentDetailsPage extends ConsumerWidget {
                           child: ListView(
                             padding: const EdgeInsets.only(bottom: 120),
                             children: [
-                              const AppointmentTopBar(
-                                title: 'Your Appointment',
+                              AppointmentTopBar(
+                                title: context.tr('yourAppointment'),
                               ),
                               const SizedBox(height: 16),
                               Container(
@@ -70,7 +71,9 @@ class AppointmentDetailsPage extends ConsumerWidget {
                                         const SizedBox(width: 8),
                                         InfoPill(
                                           icon: Icons.rate_review_outlined,
-                                          label: '${teacher.reviews} reviews',
+                                          label: context.tr('reviewsCount', {
+                                            'count': teacher.reviews,
+                                          }),
                                         ),
                                         const Spacer(),
                                         CircleIconAction(
@@ -168,22 +171,25 @@ class AppointmentDetailsPage extends ConsumerWidget {
                               ),
                               const SizedBox(height: 18),
                               _InfoRow(
-                                label: 'Booking For',
+                                label: context.tr('bookingFor'),
                                 value: appointment.bookingForSelf
-                                    ? 'Yourself'
-                                    : 'Another Person',
+                                    ? context.tr('yourself')
+                                    : context.tr('anotherPerson'),
                               ),
                               _InfoRow(
-                                label: 'Full Name',
+                                label: context.tr('fullName'),
                                 value: appointment.patientName,
                               ),
                               _InfoRow(
-                                label: 'Age',
+                                label: context.tr('age'),
                                 value: appointment.patientAge,
                               ),
                               _InfoRow(
-                                label: 'Gender',
-                                value: _genderLabel(appointment.patientGender),
+                                label: context.tr('gender'),
+                                value: _genderLabel(
+                                  context,
+                                  appointment.patientGender,
+                                ),
                               ),
                               const SizedBox(height: 18),
                               Divider(
@@ -193,7 +199,7 @@ class AppointmentDetailsPage extends ConsumerWidget {
                               ),
                               const SizedBox(height: 18),
                               Text(
-                                'Problem',
+                                context.tr('problem'),
                                 style: AppStyles.leagueSpartan12W300.copyWith(
                                   color: const Color(0xFF5D5D5D),
                                   fontSize: 14,
@@ -219,9 +225,11 @@ class AppointmentDetailsPage extends ConsumerWidget {
                       child: Center(child: CircularProgressIndicator()),
                     ),
                   ),
-                  error: (error, stackTrace) => const Scaffold(
+                  error: (error, stackTrace) => Scaffold(
                     body: SafeArea(
-                      child: Center(child: Text('Failed to load teacher.')),
+                      child: Center(
+                        child: Text(context.tr('failedLoadTeacher')),
+                      ),
                     ),
                   ),
                 );
@@ -229,9 +237,9 @@ class AppointmentDetailsPage extends ConsumerWidget {
           loading: () => const Scaffold(
             body: SafeArea(child: Center(child: CircularProgressIndicator())),
           ),
-          error: (error, stackTrace) => const Scaffold(
+          error: (error, stackTrace) => Scaffold(
             body: SafeArea(
-              child: Center(child: Text('Failed to load appointment.')),
+              child: Center(child: Text(context.tr('failedLoadAppointment'))),
             ),
           ),
         );
@@ -273,10 +281,10 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-String _genderLabel(PatientGender gender) {
+String _genderLabel(BuildContext context, PatientGender gender) {
   return switch (gender) {
-    PatientGender.male => 'Male',
-    PatientGender.female => 'Female',
-    PatientGender.other => 'Other',
+    PatientGender.male => context.tr('male'),
+    PatientGender.female => context.tr('female'),
+    PatientGender.other => context.tr('other'),
   };
 }
